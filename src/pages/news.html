@@ -1,0 +1,31 @@
+<!--meta title="News and Announcements" desc="School notices, examination and holiday announcements, achievements and activities." key="pg.news" nav="news" scripts="news" h1="News &amp; Announcements" lead="news.lead" lead_en="Notices, exams, holidays, achievements and activities." -->
+    <section class="section tight">
+      <div class="container">
+        <p class="notice reveal" id="news-sample" hidden><span data-icon="alert"></span><span data-i18n="sample.note">Sample content is shown to preview the layout.</span></p>
+        <div class="toolbar" style="margin-top:1.4rem">
+          <div class="field-search"><span data-icon="search"></span><input id="news-q" class="input" type="search" placeholder="Search news" aria-label="Search news" data-i18n-attr="placeholder:news.search;aria-label:news.search" autocomplete="off"></div>
+          <label class="toggle"><input type="checkbox" id="news-arch"><span data-i18n="news.archived">Show archived</span></label>
+        </div>
+        <div class="chips" data-live id="news-cats" role="group" aria-label="Categories" data-i18n-attr="aria-label:news.cats" style="margin-bottom:1.2rem"></div>
+        <p class="count-line" id="news-count" aria-live="polite"></p>
+        <div class="news-grid" id="news-grid" data-live></div>
+        <div class="empty" id="news-empty" hidden><span class="ico" data-icon="news"></span><h3 data-i18n="news.empty">No news matches your search.</h3></div>
+        <div class="more-row"><button type="button" class="btn btn-soft" id="news-more" hidden data-i18n="loadmore">Show more</button></div>
+      </div>
+    </section>
+
+    <dialog id="post-dlg" class="dlg" aria-labelledby="post-title">
+      <div class="dlg-head"><div class="post-meta" id="post-meta"></div><button type="button" class="round x-btn" style="background:var(--surface-2);color:var(--text)" data-close data-i18n-attr="aria-label:close" aria-label="Close"></button></div>
+      <div class="dlg-body"><h2 id="post-title"></h2><div id="post-body"></div></div>
+      <div class="dlg-foot">
+        <button type="button" class="btn btn-soft btn-sm" id="post-print"><span data-icon="print"></span><span data-i18n="print">Print</span></button>
+        <button type="button" class="btn btn-soft btn-sm" id="post-copy"><span data-icon="link"></span><span id="post-copy-l" data-i18n="copy.link">Copy link</span></button>
+      </div>
+    </dialog>
+
+    <section class="section alt" id="next-section">
+      <div class="container">
+        <h2 class="sec-title" data-i18n="next.up">Continue exploring</h2>
+        <div class="next-links" data-next="events,about,academics,contact"></div>
+      </div>
+    </section>

@@ -1,0 +1,176 @@
+<!--meta title="Umar BN L Khattob Nursery &amp; Primary School" desc="Nursery and primary education with Qur'anic and Arabic studies. Qur'an is our honour." nav="home" scripts="i18n-parent home" -->
+    <!-- HOME / HERO with school-activity slideshow -->
+    <section id="home" class="hero">
+      <div class="hero-slides" id="hero-slides" aria-hidden="true"></div>
+      <div class="hero-overlay" aria-hidden="true"></div>
+
+      <div class="container hero-grid">
+        <div class="hero-copy">
+          <h1 data-i18n="hero.title">Nurturing young minds with knowledge and faith</h1>
+          <p class="motto" data-i18n="hero.motto">Qur'an is our honour.</p>
+          <p class="lead" data-i18n="hero.lead">A school community where academic excellence and Qur'anic education grow together.</p>
+          <div class="cta-row">
+            <a class="btn btn-gold" href="admissions.html" data-i18n="hero.apply">Apply for Admission</a>
+            <a class="btn btn-ghost" href="about.html" data-i18n="hero.explore">Explore Our School</a>
+          </div>
+        </div>
+        <aside class="hero-card" aria-labelledby="qa">
+          <h2 id="qa" data-i18n="portal.title">Quick access</h2>
+          <div class="portal-links">
+            <a href="#parent"><span class="ico" aria-hidden="true" data-icon="family"></span><span data-i18n="portal.parent">Parent Portal</span></a>
+            <a href="admin.html"><span class="ico" aria-hidden="true" data-icon="shield"></span><span data-i18n="portal.admin">Admin Dashboard</span></a>
+            <a href="#teacher"><span class="ico" aria-hidden="true" data-icon="teacher"></span><span data-i18n="portal.teacher">Teacher Area</span></a>
+            <a href="#learning"><span class="ico" aria-hidden="true" data-icon="book"></span><span data-i18n="portal.learning">Learning Centre</span></a>
+          </div>
+        </aside>
+      </div>
+
+      <div class="container activity-bar" id="act-bar" role="region" aria-label="School activities" data-i18n-attr="aria-label:act.label">
+        <div class="activity-top">
+          <div class="activity-caption" id="act-caption" aria-live="off" aria-atomic="true">
+            <span class="now" data-i18n="act.now">Now showing</span>
+            <strong id="act-title"></strong>
+            <span class="d" id="act-desc"></span>
+          </div>
+          <div class="activity-ctrl">
+            <button class="round flip" id="act-prev" type="button" aria-label="Previous activity" data-i18n-attr="aria-label:act.prev"></button>
+            <button class="round" id="act-toggle" type="button" aria-label="Pause slideshow"></button>
+            <button class="round flip" id="act-next" type="button" aria-label="Next activity" data-i18n-attr="aria-label:act.next"></button>
+          </div>
+        </div>
+        <div class="activity-tabs" id="act-tabs" role="tablist" aria-label="School activities" data-i18n-attr="aria-label:act.label"></div>
+      </div>
+    </section>
+
+    <div class="container stats" aria-label="School overview">
+      <div class="stat reveal" style="--i:0"><b>Nursery</b><span>Early years</span></div>
+      <div class="stat reveal" style="--i:1"><b>Primary</b><span>Classes as configured</span></div>
+      <div class="stat reveal" style="--i:2"><b>Qur'an</b><span>Daily Qur'anic studies</span></div>
+      <div class="stat reveal" style="--i:3"><b>Arabic</b><span>Language &amp; literacy</span></div>
+    </div>
+
+    <!-- LATEST NEWS AND EVENTS -->
+    <section id="updates" class="section tight">
+      <div class="container">
+        <div class="sec-head reveal">
+          <div><h2 class="sec-title" data-i18n="upd.t">Latest news and events</h2><p class="sec-lead" style="margin:0" data-i18n="upd.d">What is happening at the school.</p></div>
+        </div>
+        <div class="updates-grid">
+          <section class="panel reveal" aria-labelledby="home-news-h">
+            <div class="panel-head"><h3 id="home-news-h" data-i18n="news.latest">Latest news</h3><a class="link-arrow" href="news.html"><span data-i18n="view.all">View all</span><span data-icon="arrow"></span></a></div>
+            <ul id="home-news" class="mini-list" data-live></ul>
+          </section>
+          <section class="panel reveal" style="--i:1" aria-labelledby="home-ev-h">
+            <div class="panel-head"><h3 id="home-ev-h" data-i18n="ev.upcoming">Upcoming events</h3><a class="link-arrow" href="events.html"><span data-i18n="view.all">View all</span><span data-icon="arrow"></span></a></div>
+            <ul id="home-events" class="mini-list" data-live></ul>
+          </section>
+        </div>
+      </div>
+    </section>
+
+    <!-- 01 GENERAL -->
+    <section id="general" class="section">
+      <div class="container">
+        <div class="section-head reveal">
+          <span class="section-badge b-general" aria-hidden="true" data-icon="school"></span>
+          <div class="grow">
+            <span class="audience" data-no="01" data-i18n="aud.public">Public</span>
+            <h2 data-i18n="sec.general.t">General</h2>
+            <p data-i18n="sec.general.d">Public information for families and visitors.</p>
+          </div>
+        </div>
+        <div id="groups-general" class="groups"></div>
+        <p class="callout reveal"><strong>Note:</strong> School history, staff, accreditation, address and phone numbers are not invented here. The school's administrators will enter verified details.</p>
+      </div>
+    </section>
+
+    <!-- 02 SCHOOL ADMIN -->
+    <section id="admin" class="section alt">
+      <div class="container">
+        <div class="section-head reveal">
+          <span class="section-badge b-admin" aria-hidden="true" data-icon="shield"></span>
+          <div class="grow">
+            <span class="audience" data-no="02" data-i18n="aud.staff">Staff only</span>
+            <h2 data-i18n="sec.admin.t">School Admin</h2>
+            <p data-i18n="sec.admin.d">A secure, role-based dashboard.</p>
+          </div>
+        </div>
+        <div id="groups-admin" class="groups"></div>
+        <p class="callout reveal"><strong>Security:</strong> Every admin module will check permissions on the server. Roles: Super Administrator, School Administrator, Admissions Officer, Bursary/Finance Officer, Teacher, Content Editor, Parent/Guardian.</p>
+      </div>
+    </section>
+
+    <!-- 03 TEACHER -->
+    <section id="teacher" class="section">
+      <div class="container">
+        <div class="section-head reveal">
+          <span class="section-badge b-teacher" aria-hidden="true" data-icon="teacher"></span>
+          <div class="grow">
+            <span class="audience" data-no="03" data-i18n="aud.teachers">Teachers</span>
+            <h2 data-i18n="sec.teacher.t">Teacher</h2>
+            <p data-i18n="sec.teacher.d">Tools for teachers.</p>
+          </div>
+        </div>
+        <div id="groups-teacher" class="groups"></div>
+        <p class="callout reveal"><strong>How the AI tools will work:</strong> a teacher enters the class, subject, topic and objectives, then reviews and edits the result before using it. AI output is always a draft and is never published automatically, and pupil personal data is not sent to the AI service. Report entry and resource submissions use teacher permissions inside ReportSheet and Learning Resources, so they are not listed twice.</p>
+      </div>
+    </section>
+
+    <!-- 04 PARENT -->
+    <section id="parent" class="section alt">
+      <div class="container">
+        <div class="section-head reveal">
+          <span class="section-badge b-parent" aria-hidden="true" data-icon="family"></span>
+          <div class="grow">
+            <span class="audience" data-no="04" data-i18n="aud.parents">Registered guardians</span>
+            <h2 data-i18n="sec.parent.t">Parent</h2>
+            <p data-i18n="sec.parent.d">A simple, private portal for guardians.</p>
+          </div>
+        </div>
+        <div id="groups-parent" class="groups"></div>
+        <p class="callout reveal"><strong>No payment gateway:</strong> parents pay the school outside the website. The portal only collects receipts and approval requests, and a receipt is never labelled "verified" just because it was uploaded.</p>
+      </div>
+    </section>
+
+    <!-- 05 LEARNING RESOURCES -->
+    <section id="learning" class="section">
+      <div class="container">
+        <div class="section-head reveal">
+          <span class="section-badge b-learn" aria-hidden="true" data-icon="book"></span>
+          <div class="grow">
+            <span class="audience" data-no="05" data-i18n="aud.everyone">Public &amp; parents</span>
+            <h2 data-i18n="sec.learning.t">Learning Resources</h2>
+            <p data-i18n="sec.learning.d">Approved videos, games, materials and quizzes.</p>
+          </div>
+        </div>
+        <div class="cat-chips reveal" role="group" aria-label="Filter resources">
+          <button class="chip" data-filter="all" aria-pressed="true" data-i18n="filter.all">All</button>
+          <button class="chip" data-filter="nursery" aria-pressed="false" data-i18n="filter.nursery">Nursery</button>
+          <button class="chip" data-filter="primary" aria-pressed="false" data-i18n="filter.primary">Primary</button>
+          <button class="chip" data-filter="secondary" aria-pressed="false" data-i18n="filter.secondary">Secondary</button>
+          <button class="chip" data-filter="arabic" aria-pressed="false" data-i18n="filter.arabic">Arabic &amp; Qur'an</button>
+        </div>
+        <div id="groups-learning" class="groups"></div>
+        <p class="callout reveal"><strong>Safe content:</strong> only school-approved or properly licensed resources, moderated embeds, and no autoplay with sound.</p>
+      </div>
+    </section>
+
+    <!-- ROADMAP -->
+    <section class="section alt" id="roadmap">
+      <div class="container">
+        <h2 data-i18n="roadmap.title">Build roadmap</h2>
+        <p style="color:var(--text-muted)" data-i18n="roadmap.d">We build section by section.</p>
+        <ol class="roadmap">
+          <li class="done reveal" style="--i:0"><strong>Foundation:</strong> design system, themes, EN/AR/HA + RTL, grouped home, activity slideshow</li>
+          <li class="done reveal" style="--i:1"><strong>Public pages:</strong> About, Academics, News, Events, Contact, Privacy</li>
+          <li class="done reveal" style="--i:2"><strong>Admissions:</strong> application form, uploads, tracking</li>
+          <li class="done reveal" style="--i:0"><strong>Backend &amp; admin:</strong> staff sign-in, roles, audit log, admissions manager</li>
+          <li class="reveal" style="--i:1"><strong>Parent portal</strong> and guardian-pupil linking</li>
+          <li class="reveal" style="--i:2"><strong>Finance modules:</strong> Financial Analysis, Financial Update, ReportSheet</li>
+          <li class="reveal" style="--i:0"><strong>Receipts</strong> and payment approval workflow</li>
+          <li class="reveal" style="--i:1"><strong>Teacher tools:</strong> Lesson Note AI, Exam Question Generator, classes, parent messaging</li>
+          <li class="reveal" style="--i:2"><strong>Learning Centre</strong> and resource manager</li>
+          <li class="reveal" style="--i:0"><strong>Combine, test, harden,</strong> deploy and hand over</li>
+        </ol>
+      </div>
+    </section>

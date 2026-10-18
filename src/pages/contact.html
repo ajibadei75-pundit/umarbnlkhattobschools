@@ -1,0 +1,66 @@
+<!--meta title="Contact and Support" desc="Contact the school, ask a question or arrange a visit." key="pg.contact" nav="contact" scripts="contact" h1="Contact &amp; Support" lead="con.lead" lead_en="We are happy to help. Send a message or visit the school." -->
+    <section class="section tight">
+      <div class="container">
+        <div class="contact-grid">
+          <div>
+            <h2 class="sec-title" data-i18n="con.info">School details</h2>
+            <div class="info-list" data-live id="info-list" style="margin-top:1rem"></div>
+          </div>
+
+          <div class="form-card reveal">
+            <h2 data-i18n="form.t">Send us a message</h2>
+            <p class="notice" id="form-unset" hidden><span data-icon="alert"></span><span data-i18n="form.unset">The school has not set up WhatsApp or email yet, so messages cannot be sent from here.</span></p>
+            <form id="contact-form" novalidate style="margin-top:1rem">
+              <div class="form-grid">
+                <div class="fld full"><label for="f-name" data-i18n="f.name">Your name</label><input class="input" id="f-name" name="name" autocomplete="name" maxlength="80" required><p class="err" id="err-name" data-i18n="e.name">Please enter your name.</p></div>
+                <div class="fld"><label for="f-phone" data-i18n="f.phone">Phone or WhatsApp (optional)</label><input class="input" id="f-phone" name="phone" type="tel" autocomplete="tel" maxlength="24" inputmode="tel"><p class="err" id="err-phone" data-i18n="e.phone">Please enter a valid phone number.</p></div>
+                <div class="fld"><label for="f-email" data-i18n="f.email">Email (optional)</label><input class="input" id="f-email" name="email" type="email" autocomplete="email" maxlength="120"><p class="err" id="err-email" data-i18n="e.email">Please enter a valid email address.</p></div>
+                <p class="err full" id="err-contact" data-i18n="e.contact" style="margin:0;display:none">Please give a phone number or an email so the school can reply.</p>
+                <div class="fld full"><label for="f-subject" data-i18n="f.subject">Subject</label>
+                  <select class="select-lg" id="f-subject" name="subject" required>
+                    <option value="" data-i18n="f.subject.choose">Choose a subject</option>
+                    <option value="admissions" data-i18n="f.s.admissions">Admissions enquiry</option>
+                    <option value="general" data-i18n="f.s.general">General enquiry</option>
+                    <option value="portal" data-i18n="f.s.portal">Parent portal help</option>
+                    <option value="feedback" data-i18n="f.s.feedback">Feedback</option>
+                    <option value="other" data-i18n="f.s.other">Other</option>
+                  </select><p class="err" id="err-subject" data-i18n="e.subject">Please choose a subject.</p></div>
+                <div class="fld full"><label for="f-message" data-i18n="f.message">Message</label><textarea class="textarea" id="f-message" name="message" maxlength="1000" required></textarea>
+                  <div class="hint"><span id="err-message-wrap"></span><span id="f-count">0 / 1000</span></div><p class="err" id="err-message" data-i18n="e.message">Please write at least 10 characters.</p></div>
+                <div class="hp" aria-hidden="true"><label for="f-site">Website</label><input id="f-site" name="site" type="text" tabindex="-1" autocomplete="off"></div>
+                <div class="fld full" id="via-wrap" hidden><span class="lbl-t" data-i18n="f.via">Send using</span><div class="radio-row" id="via-row" role="radiogroup" aria-label="Send using" data-i18n-attr="aria-label:f.via"></div></div>
+                <div class="fld full"><label class="check"><input type="checkbox" id="f-consent" name="consent"><span data-i18n="f.consent">I agree that the school may use these details to reply to me.</span></label><p class="err" id="err-consent" data-i18n="e.consent">Please tick the box to continue.</p></div>
+              </div>
+              <div class="form-actions"><button type="submit" class="btn btn-primary" id="f-send" data-i18n="f.send">Send message</button></div>
+              <div class="result" id="f-result" role="status" aria-live="polite" tabindex="-1"></div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section alt tight" id="admissions">
+      <div class="container">
+        <div class="visit reveal">
+          <span class="ico" data-icon="school"></span>
+          <div><h2 data-i18n="visit.t">Admissions and visits</h2><p data-i18n="visit.d">Online applications are coming soon. Until then, contact the school office or visit in person.</p></div>
+          <button type="button" class="btn btn-primary" id="visit-cta" data-i18n="visit.cta">Message the school</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="section tight" id="faq">
+      <div class="container">
+        <div class="sec-head reveal"><h2 class="sec-title" data-i18n="faq.t">Frequently asked questions</h2>
+          <div class="field-search" style="margin:0"><span data-icon="search"></span><input id="faq-q" class="input" type="search" placeholder="Search questions" aria-label="Search questions" data-i18n-attr="placeholder:faq.search;aria-label:faq.search" autocomplete="off"></div></div>
+        <div class="faq-list" data-live id="faq-list"></div>
+        <div class="empty" id="faq-empty" hidden><h3 data-i18n="faq.none">No questions match.</h3></div>
+      </div>
+    </section>
+
+    <section class="section alt" id="next-section">
+      <div class="container">
+        <h2 class="sec-title" data-i18n="next.up">Continue exploring</h2>
+        <div class="next-links" data-next="about,academics,news,events"></div>
+      </div>
+    </section>

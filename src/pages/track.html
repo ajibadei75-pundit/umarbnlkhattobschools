@@ -1,0 +1,24 @@
+<!--meta title="Track application" desc="Check the status of an admission application." key="pg.track" nav="admissions" scripts="i18n-admissions backend track" h1="Track application" lead="pg.track.lead" lead_en="Enter your reference number and tracking code to see where your application is." -->
+    <section class="section tight">
+      <div class="container">
+        <div class="form-card" style="max-width:640px;margin-inline:auto">
+          <form id="trk-form" novalidate>
+            <div class="form-grid">
+              <div class="fld"><label for="t-ref" data-i18n="trk.ref">Reference number</label><input class="input" id="t-ref" maxlength="20" placeholder="UBK-26-ABC123" autocomplete="off" autocapitalize="characters" spellcheck="false"></div>
+              <div class="fld"><label for="t-code" data-i18n="trk.code">Tracking code</label><input class="input" id="t-code" maxlength="12" placeholder="ABCD2345" autocomplete="off" autocapitalize="characters" spellcheck="false"></div>
+              <div class="hp" aria-hidden="true"><label for="t-site">Website</label><input id="t-site" type="text" tabindex="-1" autocomplete="off"></div>
+            </div>
+            <p class="count-line" data-i18n="trk.hint"></p>
+            <div class="form-actions"><button type="submit" class="btn btn-primary" id="t-go" data-i18n="trk.go">Check status</button><a class="link-arrow" href="admissions.html"><span data-i18n="trk.new">Apply online</span><span data-icon="arrow"></span></a></div>
+            <div class="result" id="t-result" role="status" aria-live="polite" tabindex="-1"></div>
+          </form>
+          <div id="t-out" hidden></div>
+        </div>
+      </div>
+    </section>
+    <section class="section alt" id="next-section">
+      <div class="container">
+        <h2 class="sec-title" data-i18n="next.up">Continue exploring</h2>
+        <div class="next-links" data-next="admissions,contact,academics,about"></div>
+      </div>
+    </section>

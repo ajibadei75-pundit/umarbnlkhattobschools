@@ -1,0 +1,47 @@
+<!--meta title="Events and Calendar" desc="School events, examination dates, parent-teacher meetings, holidays and recitation events." key="pg.events" nav="events" scripts="events" h1="Events &amp; Calendar" lead="ev.lead" lead_en="School events, exams, meetings, holidays and recitation programmes." -->
+    <section class="section tight">
+      <div class="container">
+        <p class="notice reveal" id="ev-sample" hidden><span data-icon="alert"></span><span data-i18n="sample.note">Sample content is shown to preview the layout.</span></p>
+        <div class="toolbar" style="margin-top:1.4rem">
+          <div class="seg-view" role="group" aria-label="View" data-i18n-attr="aria-label:ev.views">
+            <button type="button" id="v-cal" aria-pressed="true"><span data-icon="calendar"></span><span data-i18n="ev.view.cal">Calendar</span></button>
+            <button type="button" id="v-list" aria-pressed="false"><span data-icon="list"></span><span data-i18n="ev.view.list">List</span></button>
+          </div>
+          <label class="toggle" id="past-wrap"><input type="checkbox" id="ev-past"><span data-i18n="ev.past">Show past events</span></label>
+          <span style="flex:1"></span>
+          <button type="button" class="btn btn-soft btn-sm" id="ev-print"><span data-icon="print"></span><span data-i18n="ev.print">Print calendar</span></button>
+          <button type="button" class="btn btn-soft btn-sm" id="ev-ics-all"><span data-icon="download"></span><span data-i18n="ev.ics">Download calendar (.ics)</span></button>
+        </div>
+        <div class="chips" id="ev-cats" role="group" aria-label="Event categories" data-i18n-attr="aria-label:ev.cats" style="margin-bottom:1.4rem"></div>
+
+        <div id="cal-view" data-live>
+          <div class="cal-head">
+            <h2 id="cal-title" aria-live="polite"></h2>
+            <div class="cal-nav">
+              <button type="button" class="btn btn-soft btn-sm" id="cal-today" data-i18n="today">Today</button>
+              <button type="button" class="round flip" id="cal-prev" style="background:var(--surface-2);color:var(--text);border:1px solid var(--border)" data-i18n-attr="aria-label:prev" aria-label="Previous"></button>
+              <button type="button" class="round flip" id="cal-next" style="background:var(--surface-2);color:var(--text);border:1px solid var(--border)" data-i18n-attr="aria-label:next" aria-label="Next"></button>
+            </div>
+          </div>
+          <div class="cal" id="cal" role="grid" aria-labelledby="cal-title"></div>
+          <div class="cal-legend" id="cal-legend"></div>
+        </div>
+
+        <div id="list-view" data-live hidden>
+          <div class="ev-list" id="ev-list"></div>
+          <div class="empty" id="ev-empty" hidden><span class="ico" data-icon="calendar"></span><h3 data-i18n="ev.none">No events to show.</h3></div>
+        </div>
+      </div>
+    </section>
+
+    <dialog id="ev-dlg" class="dlg" aria-labelledby="ev-dlg-title">
+      <div class="dlg-head"><h2 id="ev-dlg-title" style="font-size:1.35rem;margin:0"></h2><button type="button" class="round x-btn" style="background:var(--surface-2);color:var(--text)" data-close data-i18n-attr="aria-label:close" aria-label="Close"></button></div>
+      <div class="dlg-body" id="ev-dlg-body"></div>
+    </dialog>
+
+    <section class="section alt" id="next-section">
+      <div class="container">
+        <h2 class="sec-title" data-i18n="next.up">Continue exploring</h2>
+        <div class="next-links" data-next="news,about,academics,contact"></div>
+      </div>
+    </section>
