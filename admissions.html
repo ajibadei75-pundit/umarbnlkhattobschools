@@ -6,9 +6,21 @@
   <title>Admissions | Umar BN L Khattob Nursery &amp; Primary School</title>
   <meta name="description" content="Apply online for a Nursery or Primary place and track your application.">
   <meta name="theme-color" content="#302078">
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="UBK School">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Umar BN L Khattob Nursery &amp; Primary School">
+  <meta property="og:title" content="Admissions | Umar BN L Khattob Nursery &amp; Primary School">
+  <meta property="og:description" content="Apply online for a Nursery or Primary place and track your application.">
+  <meta name="color-scheme" content="light dark">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Montserrat:wght@500;600;700&family=Poppins:wght@500;600;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Noto+Naskh+Arabic:wght@400;600&family=Noto+Sans:wght@400;500;600;700&display=swap">
+  <link rel="icon" href="assets/icons/favicon-48.png" type="image/png" sizes="48x48">
   <link rel="icon" href="assets/img/logo-fallback.svg" type="image/svg+xml">
   <script src="assets/js/theme.js"></script>
   <link rel="stylesheet" href="assets/css/tokens.css">
@@ -34,30 +46,29 @@
       </div>
 
       <nav id="nav" class="nav" aria-label="Main">
-        <a href="index.html" data-nav="home" data-spy="home" data-i18n="nav.home">Home</a>
-        <div class="nav-dd is-current" data-nav="general" data-spy="general">
+        <a href="index.html" data-nav="home" data-i18n="nav.home">Home</a>
+        <a href="about.html" data-nav="about" data-i18n="pg.about.s">About</a>
+        <a href="academics.html" data-nav="academics" data-i18n="pg.academics">Academics</a>
+        <a href="gallery.html" data-nav="gallery" data-i18n="nav.gallery">Gallery</a>
+        <a href="leadership.html" data-nav="leadership" data-i18n="nav.leadership">Leadership</a>
+        <a href="admissions.html" data-nav="admissions" aria-current="page" data-i18n="pg.admissions">Admissions</a>
+        <div class="nav-dd" data-nav="general" data-spy="general">
           <button type="button" class="dd-btn" aria-expanded="false" aria-haspopup="true" aria-controls="dd-general">
-            <span data-i18n="nav.general">General</span><span data-icon="chevron" aria-hidden="true"></span>
+            <span data-i18n="nav.more">More</span><span data-icon="chevron" aria-hidden="true"></span>
           </button>
           <div class="dd-menu" id="dd-general">
-            <a href="about.html" data-nav="about"><strong data-i18n="pg.about">About the School</strong><small data-i18n="pg.about.d">Vision, values, approach, staff and gallery</small></a>
-            <a href="academics.html" data-nav="academics"><strong data-i18n="pg.academics">Academics</strong><small data-i18n="pg.academics.d">Nursery and primary programmes and subjects</small></a>
-            <a href="admissions.html" data-nav="admissions" aria-current="page"><strong data-i18n="pg.admissions">Admissions</strong><small data-i18n="pg.admissions.d">Apply online and track your application</small></a>
             <a href="news.html" data-nav="news"><strong data-i18n="pg.news">News &amp; Announcements</strong><small data-i18n="pg.news.d">Notices, exams, holidays and achievements</small></a>
             <a href="events.html" data-nav="events"><strong data-i18n="pg.events">Events &amp; Calendar</strong><small data-i18n="pg.events.d">School calendar in calendar and list views</small></a>
+            <a href="learning.html" data-nav="learning"><strong data-i18n="pg.learning">Learning Centre</strong><small data-i18n="pg.learning.d">Approved videos, materials, quizzes and games</small></a>
             <a href="contact.html" data-nav="contact"><strong data-i18n="pg.contact">Contact &amp; Support</strong><small data-i18n="pg.contact.d">Reach the school, FAQ and enquiries</small></a>
           </div>
         </div>
-        <a href="index.html#admin" data-spy="admin" data-i18n="nav.admin">School Admin</a>
-        <a href="index.html#teacher" data-spy="teacher" data-i18n="nav.teacher">Teacher</a>
-        <a href="index.html#parent" data-spy="parent" data-i18n="nav.parent">Parent</a>
-        <a href="index.html#learning" data-spy="learning" data-i18n="nav.learning">Learning Resources</a>
         <div class="nav-dd nav-dd--end signin-dd" data-nav="signin">
           <button type="button" class="dd-btn signin-btn" aria-expanded="false" aria-haspopup="true" aria-controls="dd-signin">
-            <span data-icon="shield" aria-hidden="true"></span><span data-i18n="nav.signin">Sign in</span><span data-icon="chevron" aria-hidden="true"></span>
+            <span data-icon="shield" aria-hidden="true"></span><span data-i18n="hx.signin">Portals</span><span data-icon="chevron" aria-hidden="true"></span>
           </button>
           <div class="dd-menu" id="dd-signin">
-            <a href="admin.html" data-nav="admin"><strong data-i18n="signin.staff">Staff dashboard</strong><small data-i18n="signin.staff.d">For teachers, office and administrators</small></a>
+            <a href="admin.html" data-nav="admin"><strong data-i18n="signin.staff">Teacher &amp; staff</strong><small data-i18n="signin.staff.d">For teachers, office and administrators</small></a>
             <a href="parent.html" data-nav="parent"><strong data-i18n="signin.parent">Parent portal</strong><small data-i18n="signin.parent.d">See your children and school notices</small></a>
           </div>
         </div>
@@ -84,12 +95,21 @@
   <main id="main">
     <section class="page-hero">
       <div class="container">
-        <nav class="crumbs" aria-label="Breadcrumb" data-i18n-attr="aria-label:crumb.label"><ol><li><a href="index.html" data-i18n="crumb.home">Home</a></li><li><a href="index.html#general" data-i18n="nav.general">General</a></li><li><span aria-current="page" data-i18n="pg.admissions">Admissions</span></li></ol></nav>
+        <nav class="crumbs" aria-label="Breadcrumb" data-i18n-attr="aria-label:crumb.label"><ol><li><a href="index.html" data-i18n="crumb.home">Home</a></li><li><span aria-current="page" data-i18n="pg.admissions">Admissions</span></li></ol></nav>
         <h1 data-i18n="pg.admissions">Admissions</h1>
         <p class="lead" data-i18n="pg.admissions.lead">Apply online for a Nursery or Primary place and follow your application.</p>
       </div>
     </section>
-<section class="section tight">
+<section class="section tight" style="padding-bottom:0">
+      <div class="container">
+        <div class="adm-strip reveal">
+          <div><strong data-i18n="adm.desk">Admissions desk</strong><p data-i18n="adm.desk.d">For anything about admission, call or message this number.</p></div>
+          <a class="btn btn-primary" data-adm="call" href="tel:+2348169383031"><span data-icon="phone" aria-hidden="true"></span><b dir="ltr" data-adm-num>08169383031</b></a>
+          <a class="btn btn-soft" data-adm="wa" href="https://wa.me/2348169383031"><span data-icon="chat" aria-hidden="true"></span><span data-i18n="adm.wa">WhatsApp admissions</span></a>
+        </div>
+      </div>
+    </section>
+    <section class="section tight">
       <div class="container">
         <h2 class="sec-title" data-i18n="adm.steps.t">How it works</h2>
         <ol class="steps-grid" style="margin-top:1.2rem">
@@ -203,7 +223,10 @@
           <ul>
             <li><a href="about.html" data-i18n="pg.about">About the School</a></li>
             <li><a href="academics.html" data-i18n="pg.academics">Academics</a></li>
+            <li><a href="gallery.html" data-i18n="nav.gallery">Gallery</a></li>
+            <li><a href="leadership.html" data-i18n="nav.leadership">Leadership</a></li>
             <li><a href="admissions.html" data-i18n="pg.admissions">Admissions</a></li>
+            <li><a href="learning.html" data-i18n="nav.learning">Learning Resources</a></li>
             <li><a href="news.html" data-i18n="pg.news">News &amp; Announcements</a></li>
             <li><a href="events.html" data-i18n="pg.events">Events &amp; Calendar</a></li>
             <li><a href="contact.html" data-i18n="pg.contact">Contact &amp; Support</a></li>
@@ -223,7 +246,8 @@
           <ul id="footer-contact" class="footer-contact"></ul>
         </div>
       </div>
-      <p class="legal"><span data-i18n="footer.legal">© 2026 Umar BN L Khattob Nursery &amp; Primary School.</span><a href="privacy.html" data-i18n="footer.privacy">Privacy notice</a></p>
+      <p class="legal"><span data-i18n="footer.legal">© 2026 Umar BN L Khattob Nursery &amp; Primary School.</span><a href="privacy.html" data-i18n="footer.privacy">Privacy notice</a><button type="button" id="pwa-install" class="pwa-install" hidden data-i18n="footer.install">Install the app</button></p>
+      <p class="count-line pwa-hint" id="pwa-hint" hidden data-i18n="footer.install.ios">To install: tap Share, then Add to Home Screen.</p>
     </div>
   </footer>
 
@@ -242,10 +266,13 @@
 
   <script src="assets/js/i18n.js"></script>
   <script src="assets/js/i18n-pages.js"></script>
+  <script src="assets/js/i18n-public.js"></script>
   <script src="assets/js/site-config.js"></script>
   <script src="assets/js/data.js"></script>
   <script src="assets/js/core.js"></script>
   <script src="assets/js/content.js"></script>
+  <script src="assets/js/public.js"></script>
+  <script src="assets/js/pwa.js"></script>
   <script src="assets/js/i18n-admissions.js"></script>
   <script src="assets/js/backend.js"></script>
   <script src="assets/js/admissions.js"></script>
