@@ -1,0 +1,26 @@
+{
+  "name": "Umar BN L Khattob Nursery & Primary School",
+  "short_name": "UBK School",
+  "description": "School website and portal: admissions, parent portal, results, learning centre and news.",
+  "id": "./",
+  "start_url": "./index.html?source=pwa",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#faf9fe",
+  "theme_color": "#302078",
+  "lang": "en",
+  "dir": "auto",
+  "categories": ["education"],
+  "icons": [
+    { "src": "assets/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "assets/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "assets/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Parent portal", "url": "parent.html?source=shortcut", "icons": [{ "src": "assets/icons/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Check a result", "url": "parent.html?source=shortcut#pp-lookup", "icons": [{ "src": "assets/icons/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Learning Centre", "url": "learning.html?source=shortcut", "icons": [{ "src": "assets/icons/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Admissions", "url": "admissions.html?source=shortcut", "icons": [{ "src": "assets/icons/icon-192.png", "sizes": "192x192" }] }
+  ]
+}
