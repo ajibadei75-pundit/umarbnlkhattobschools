@@ -36,7 +36,7 @@ window.UBK_I18N = {
     "status.planned": "Planned", "status.live": "Preview",
     "filter.all": "All", "filter.nursery": "Nursery", "filter.primary": "Primary", "filter.secondary": "Secondary", "filter.arabic": "Arabic & Qur'an",
     "roadmap.title": "Build roadmap", "roadmap.d": "We build section by section, test each one, then combine.",
-    "footer.track": "Track an application", "footer.result": "Check a result", "footer.contact": "Contact", "footer.explore": "Explore",
+    "footer.track": "Track an application", "footer.result": "Check a result", "pg.offline": "You are offline", "pg.offline.lead": "Check your connection. Pages you have already opened still work.", "offline.h": "No internet connection", "offline.p": "This page has not been saved on your device yet. Sign-in, payments, results and forms need an internet connection.", "offline.retry": "Try again", "footer.install": "Install the app", "footer.install.ios": "To install: tap Share, then Add to Home Screen.", "footer.contact": "Contact", "footer.explore": "Explore",
     "footer.note": "Contact details will be added by the school once verified.",
     "footer.legal": "© 2026 Umar BN L Khattob Nursery & Primary School. All rights reserved."
   },
@@ -75,7 +75,7 @@ window.UBK_I18N = {
     "status.planned": "مخطط", "status.live": "معاينة",
     "filter.all": "الكل", "filter.nursery": "الحضانة", "filter.primary": "الابتدائي", "filter.secondary": "الثانوي", "filter.arabic": "العربية والقرآن",
     "roadmap.title": "خطة البناء", "roadmap.d": "نبني قسمًا بعد قسم، ونختبر كل قسم، ثم نجمع الكل.",
-    "footer.track": "متابعة طلب القبول", "footer.result": "الاستعلام عن نتيجة", "footer.contact": "التواصل", "footer.explore": "استكشف",
+    "footer.track": "متابعة طلب القبول", "footer.result": "الاستعلام عن نتيجة", "pg.offline": "لا يوجد اتصال", "pg.offline.lead": "تحقق من الاتصال. الصفحات التي فتحتها سابقًا تعمل.", "offline.h": "لا يوجد اتصال بالإنترنت", "offline.p": "لم تُحفظ هذه الصفحة على جهازك بعد. تسجيل الدخول والمدفوعات والنتائج والنماذج تحتاج إلى الإنترنت.", "offline.retry": "حاول مرة أخرى", "footer.install": "تثبيت التطبيق", "footer.install.ios": "للتثبيت: اضغط مشاركة ثم إضافة إلى الشاشة الرئيسية.", "footer.contact": "التواصل", "footer.explore": "استكشف",
     "footer.note": "ستضيف المدرسة بيانات التواصل بعد التحقق منها.",
     "footer.legal": "© 2026 مدرسة عمر بن الخطاب الابتدائية والحضانة. جميع الحقوق محفوظة."
   },
@@ -114,7 +114,7 @@ window.UBK_I18N = {
     "status.planned": "A shirye-shirye", "status.live": "Samfuri",
     "filter.all": "Duka", "filter.nursery": "Nursery", "filter.primary": "Firamare", "filter.secondary": "Sakandare", "filter.arabic": "Larabci da Alƙur'ani",
     "roadmap.title": "Tsarin gini", "roadmap.d": "Muna ginawa sashe-sashe, mu gwada kowanne, sannan mu haɗa.",
-    "footer.track": "Bibiyar neman shiga", "footer.result": "Duba sakamako", "footer.contact": "Tuntuɓa", "footer.explore": "Bincika",
+    "footer.track": "Bibiyar neman shiga", "footer.result": "Duba sakamako", "pg.offline": "Ba ka kan layi", "pg.offline.lead": "Duba haɗin intanet. Shafukan da ka riga ka buɗe suna aiki.", "offline.h": "Babu intanet", "offline.p": "Ba a adana wannan shafin a na'urarka ba tukuna. Shiga, biyan kuɗi, sakamako da fom suna buƙatar intanet.", "offline.retry": "Sake gwadawa", "footer.install": "Sanya manhajar", "footer.install.ios": "Don sanyawa: danna Share, sannan Add to Home Screen.", "footer.contact": "Tuntuɓa", "footer.explore": "Bincika",
     "footer.note": "Makaranta za ta ƙara bayanan tuntuɓa bayan tabbatarwa.",
     "footer.legal": "© 2026 Makarantar Nursery da Firamare ta Umar BN L Khattob. Dukkan haƙƙoƙi na da kariya."
   }

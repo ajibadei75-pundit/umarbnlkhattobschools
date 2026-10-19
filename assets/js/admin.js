@@ -88,9 +88,10 @@
     if (can(ADM)) tabs.push(["admissions", "Admissions manager"]);
     if (can(CMS)) tabs.push(["content", "Website content"]);
     if (can(["super_admin", "school_admin"])) { tabs.push(["results", "Results and reports"]); tabs.push(["people", "Pupils and parents"]); }
+    if (can(["super_admin", "school_admin", "content_editor", "teacher"])) tabs.push(["learning", "Learning Centre"]);
     if (can(["super_admin", "school_admin", "finance_officer"])) tabs.push(["payments", "Payments"]);
     if (can(["super_admin"])) tabs.push(["staff", "Users and roles"]);
-    var IC = { overview: "grid", admissions: "family", content: "news", people: "users", staff: "shield", myclasses: "book", results: "list", aitools: "news", payments: "list" };
+    var IC = { overview: "grid", admissions: "family", content: "news", people: "users", staff: "shield", myclasses: "book", results: "list", aitools: "news", payments: "list", learning: "book" };
     $("#ad-tabs").innerHTML = tabs.map(function (x) { return '<button type="button" role="tab" data-tab="' + x[0] + '" aria-selected="false">' + icon(IC[x[0]] || "list") + "<span>" + esc(x[1]) + "</span></button>"; }).join("");
     $$("#ad-tabs button").forEach(function (b, i, all) {
       b.addEventListener("click", function () { go(b.getAttribute("data-tab")); });
@@ -106,9 +107,9 @@
     tab = t;
     $$("#ad-tabs button").forEach(function (b) { var on = b.getAttribute("data-tab") === t; b.setAttribute("aria-selected", String(on)); b.tabIndex = on ? 0 : -1; });
     var cur = $('#ad-tabs [aria-selected="true"]'); if (cur && cur.scrollIntoView && window.innerWidth < 900) try { cur.scrollIntoView({ block: "nearest", inline: "center" }); } catch (e) {}
-    ["overview", "admissions", "content", "people", "staff", "myclasses", "results", "aitools", "payments"].forEach(function (k) { $("#p-" + k).hidden = k !== t; });
+    ["overview", "admissions", "content", "people", "staff", "myclasses", "results", "aitools", "payments", "learning"].forEach(function (k) { $("#p-" + k).hidden = k !== t; });
     try { history.replaceState(null, "", "#" + t); } catch (e) {}
-    if (t === "overview") overview(); if (t === "admissions") loadApps(); if (t === "content" && window.UBK_ADMIN.content) window.UBK_ADMIN.content($("#p-content")); if (t === "people" && window.UBK_ADMIN.people) window.UBK_ADMIN.people($("#p-people")); if (t === "myclasses" && window.UBK_ADMIN.teach) window.UBK_ADMIN.teach($("#p-myclasses")); if (t === "results" && window.UBK_ADMIN.results) window.UBK_ADMIN.results($("#p-results")); if (t === "aitools" && window.UBK_ADMIN.aitools) window.UBK_ADMIN.aitools($("#p-aitools")); if (t === "payments" && window.UBK_ADMIN.payments) window.UBK_ADMIN.payments($("#p-payments")); if (t === "staff") staffPanel();
+    if (t === "overview") overview(); if (t === "admissions") loadApps(); if (t === "content" && window.UBK_ADMIN.content) window.UBK_ADMIN.content($("#p-content")); if (t === "people" && window.UBK_ADMIN.people) window.UBK_ADMIN.people($("#p-people")); if (t === "myclasses" && window.UBK_ADMIN.teach) window.UBK_ADMIN.teach($("#p-myclasses")); if (t === "results" && window.UBK_ADMIN.results) window.UBK_ADMIN.results($("#p-results")); if (t === "aitools" && window.UBK_ADMIN.aitools) window.UBK_ADMIN.aitools($("#p-aitools")); if (t === "payments" && window.UBK_ADMIN.payments) window.UBK_ADMIN.payments($("#p-payments")); if (t === "learning" && window.UBK_ADMIN.learning) window.UBK_ADMIN.learning($("#p-learning")); if (t === "staff") staffPanel();
   }
 
   /* ---------- overview ---------- */

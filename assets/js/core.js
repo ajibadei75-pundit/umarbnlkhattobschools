@@ -183,7 +183,8 @@
 
   /* ---------------- "Continue exploring" links and footer contact ---------------- */
   var PAGE_META = { admissions: ["pg.admissions", "admissions.html", "school"], about: ["pg.about", "about.html", "building"], academics: ["pg.academics", "academics.html", "book"], news: ["pg.news", "news.html", "news"],
-    events: ["pg.events", "events.html", "calendar"], contact: ["pg.contact", "contact.html", "chat"] };
+    events: ["pg.events", "events.html", "calendar"], contact: ["pg.contact", "contact.html", "chat"],
+    gallery: ["pg.gallery", "gallery.html", "grid"], leadership: ["pg.leadership", "leadership.html", "users"] };
   function renderNextLinks() {
     $$("[data-next]").forEach(function (host) {
       host.innerHTML = host.getAttribute("data-next").split(",").map(function (k) {
@@ -197,8 +198,10 @@
     var s = window.UBK_SITE || {}, rows = [];
     function row(ic, label, val) { rows.push('<li>' + icon(ic) + "<span>" + esc(label) + ": " + val + "</span></li>"); }
     var tbc = '<em>' + esc(t("con.none.footer")) + "</em>";
+    var A = s.admissions || {};
+    if (A.tel) rows.push('<li>' + icon("phone") + "<span><strong>" + esc(t("adm.desk")) + ':</strong> <a href="tel:' + esc(A.tel) + '" dir="ltr">' + esc(A.phone) + "</a></span></li>");
     row("mappin", t("con.address"), s.address ? esc(s.address) : tbc);
-    row("phone", t("con.phone"), s.phones && s.phones.length ? s.phones.map(function (p) { return '<a href="tel:' + esc(p.replace(/[^+\d]/g, "")) + '">' + esc(p) + "</a>"; }).join(", ") : tbc);
+    if (s.phones && s.phones.length) row("phone", t("con.phone"), s.phones.map(function (p) { return '<a href="tel:' + esc(p.replace(/[^+\d]/g, "")) + '">' + esc(p) + "</a>"; }).join(", "));
     row("mail", t("con.email"), s.email ? '<a href="mailto:' + esc(s.email) + '">' + esc(s.email) + "</a>" : tbc);
     host.innerHTML = rows.join("");
   }
@@ -300,7 +303,7 @@
   }
 
   /* ---------------- Search ---------------- */
-  var SEARCH_PAGES = [["pg.admissions", "admissions.html"], ["pg.track", "track.html"], ["pg.about", "about.html"], ["pg.academics", "academics.html"], ["pg.news", "news.html"], ["pg.events", "events.html"], ["pg.contact", "contact.html"]];
+  var SEARCH_PAGES = [["pg.admissions", "admissions.html"], ["pg.track", "track.html"], ["pg.about", "about.html"], ["pg.academics", "academics.html"], ["pg.news", "news.html"], ["pg.events", "events.html"], ["pg.contact", "contact.html"], ["nav.learning", "learning.html"]];
   var SEARCH_HOME = [["nav.admin", "index.html#admin", "sec.admin.d"], ["nav.teacher", "index.html#teacher", "sec.teacher.d"], ["nav.parent", "parent.html", "sec.parent.d"], ["nav.learning", "index.html#learning", "sec.learning.d"]];
   function searchIndex() {
     var out = [];

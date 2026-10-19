@@ -1,0 +1,117 @@
+/* ==========================================================
+   Design tokens — Umar BN L Khattob Nursery & Primary School
+   Editable in one place. Colours are proposed from the logo.
+   ========================================================== */
+:root {
+  /* Brand */
+  --brand-purple: #302078;
+  --brand-lavender: #c5b9de;
+  --brand-teal: #16a6a3;
+  --brand-gold: #d5a43b;
+  --brand-burgundy: #a52d35;
+  --brand-white: #ffffff;
+
+  /* Type */
+  --font-sans: "Lato", "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;      /* body text */
+  --font-ui: "Montserrat", "Segoe UI", system-ui, sans-serif;                          /* nav, buttons, labels */
+  /* Arabic: IBM Plex Sans Arabic is a clean, modern, highly legible face for interface and body text; Noto Naskh Arabic is used
+     only for the formal Arabic name and motto. Fallbacks cover Windows, macOS, iOS, Android and Linux. */
+  --font-arabic: "IBM Plex Sans Arabic", "Noto Sans Arabic", "Segoe UI", Tahoma, "Geeza Pro", "Droid Arabic Kufi", Arial, sans-serif;
+  --font-arabic-formal: "Noto Naskh Arabic", "Amiri", "Traditional Arabic", "Geeza Pro", "Segoe UI", Tahoma, serif;
+  /* Hausa (Latin script with the hooked letters ɓ ɗ ƙ ƴ): Noto Sans covers every Hausa letter; Montserrat, Poppins and Lato do not reliably. */
+  --font-hausa: "Noto Sans", "Segoe UI", Roboto, "Helvetica Neue", Arial, system-ui, sans-serif;
+  --font-display: "Poppins", "Segoe UI", system-ui, sans-serif;                        /* headings */
+
+  /* Shape & motion */
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 22px;
+  --shadow-sm: 0 1px 2px rgb(20 12 60 / 8%);
+  --shadow-md: 0 8px 24px rgb(20 12 60 / 10%);
+  --shadow-lg: 0 18px 48px rgb(20 12 60 / 16%);
+  --ease: cubic-bezier(.2, .7, .2, 1);
+  --space: 1rem;
+  --container: 1180px;
+  --tap: 44px; /* minimum touch target */
+}
+
+/* ---------- LIGHT ---------- */
+:root,
+:root[data-theme="light"] {
+  color-scheme: light;
+  --bg: #faf9fe;
+  --surface: #ffffff;
+  --surface-2: #f2effa;
+  --text: #1c1740;
+  --text-muted: #5a5680;
+  --border: #ddd8ee;
+  --primary: var(--brand-purple);
+  --on-primary: #ffffff;
+  --accent: var(--brand-teal);
+  --on-accent: #04302f;
+  --highlight: var(--brand-gold);
+  --danger: var(--brand-burgundy);
+  --focus: #1a73e8;
+  --hero-from: #302078;
+  --hero-to: #4a36a8;
+  --on-hero: #ffffff;
+  --pattern-opacity: .07;
+}
+
+/* ---------- DARK ---------- */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0f0c24;
+  --surface: #181437;
+  --surface-2: #211c4a;
+  --text: #ece9ff;
+  --text-muted: #aca6d6;
+  --border: #322c63;
+  --primary: #a898e8;
+  --on-primary: #130e33;
+  --accent: #3cc7c3;
+  --on-accent: #04201f;
+  --highlight: #e6b950;
+  --danger: #e2646c;
+  --focus: #7db3ff;
+  --hero-from: #1a1350;
+  --hero-to: #2b2078;
+  --on-hero: #ffffff;
+  --pattern-opacity: .09;
+  --shadow-sm: 0 1px 2px rgb(0 0 0 / 40%);
+  --shadow-md: 0 8px 24px rgb(0 0 0 / 40%);
+  --shadow-lg: 0 18px 48px rgb(0 0 0 / 50%);
+}
+
+/* ---------- SYSTEM (follows OS) ---------- */
+@media (prefers-color-scheme: dark) {
+  :root[data-theme="system"] {
+    color-scheme: dark;
+    --bg: #0f0c24;
+    --surface: #181437;
+    --surface-2: #211c4a;
+    --text: #ece9ff;
+    --text-muted: #aca6d6;
+    --border: #322c63;
+    --primary: #a898e8;
+    --on-primary: #130e33;
+    --accent: #3cc7c3;
+    --on-accent: #04201f;
+    --highlight: #e6b950;
+    --danger: #e2646c;
+    --focus: #7db3ff;
+    --hero-from: #1a1350;
+    --hero-to: #2b2078;
+    --pattern-opacity: .09;
+    --shadow-sm: 0 1px 2px rgb(0 0 0 / 40%);
+    --shadow-md: 0 8px 24px rgb(0 0 0 / 40%);
+    --shadow-lg: 0 18px 48px rgb(0 0 0 / 50%);
+  }
+}
+
+/* Arabic script is not covered by Lato / Poppins / Montserrat, so one Arabic font is used for all roles. */
+html[lang="ar"] { --font-sans: var(--font-arabic); --font-ui: var(--font-arabic); --font-display: var(--font-arabic); }
+html[lang="ha"] { --font-sans: var(--font-hausa); --font-ui: var(--font-hausa); --font-display: var(--font-hausa); }
+/* Arabic text inside an English or Hausa page */
+:lang(ar) { font-family: var(--font-arabic); }
+.ar-line, .footer-ar { font-family: var(--font-arabic-formal); }
