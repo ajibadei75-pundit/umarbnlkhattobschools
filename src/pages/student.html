@@ -1,0 +1,27 @@
+<!--meta title="Student portal" desc="Pupils: see your result and learn with games and quizzes." nav="student" dir="student" shell="portal" portal="pt.student" key="pt.student" robots="1" scripts="i18n-admissions i18n-parent report-sheet i18n-student student" -->
+    <section class="section tight">
+      <div class="container">
+        <div id="st-login" class="form-card" style="max-width:460px;margin-inline:auto">
+          <h1 style="font-size:1.6rem;margin:0 0 .3rem" data-i18n="pt.student">Student portal</h1>
+          <p class="sec-lead" style="margin-bottom:1.2rem" data-i18n="st.login.d">Enter your Student ID and the 6-digit PIN your school gave you.</p>
+          <p class="notice" id="st-cfg" hidden><span data-icon="alert"></span><span data-i18n="adm.e.cfg"></span></p>
+          <form id="st-form" novalidate>
+            <div class="fld"><label for="st-code" data-i18n="rs.lk.code">Student ID</label><input class="input" id="st-code" maxlength="20" placeholder="UBK-XXXXXX" autocomplete="username" autocapitalize="characters" required></div>
+            <div class="fld" style="margin-top:1rem"><label for="st-pin" data-i18n="st.pin">PIN</label><input class="input" id="st-pin" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="current-password" required></div>
+            <div class="form-actions" style="margin-top:1.2rem"><button type="submit" class="btn btn-primary" id="st-go" data-i18n="par.signin">Sign in</button></div>
+            <div class="result" id="st-res" role="alert" tabindex="-1"></div>
+          </form>
+          <p class="count-line" style="margin-top:1.2rem" data-i18n="st.forgot">Forgot your PIN? Ask your class teacher or the school office.</p>
+        </div>
+
+        <div id="st-app" hidden>
+          <div class="ad-bar"><div><h2 style="font-size:1.5rem;margin:0" id="st-hello"></h2><p class="count-line" style="margin:.2rem 0 0" id="st-class"></p></div>
+            <button type="button" class="btn btn-soft btn-sm" id="st-out" data-i18n="par.signout">Sign out</button></div>
+          <div class="st-cards">
+            <article class="panel"><h3 data-i18n="st.result">My result</h3><p id="st-rmsg" class="count-line"></p><button type="button" class="btn btn-primary" id="st-view" hidden data-i18n="rs.view">View result</button></article>
+            <article class="panel"><h3 data-i18n="st.learn">Learn and play</h3><p class="count-line" data-i18n="st.learn.d">Videos, quizzes and games checked by your school.</p><a class="btn btn-gold" href="learning.html" data-i18n="hx.play.all">Open the Learning Centre</a></article>
+          </div>
+          <div id="st-sheet" class="rw-prev rs-guarded-host" hidden></div>
+        </div>
+      </div>
+    </section>

@@ -23,9 +23,7 @@
   <link rel="icon" href="assets/icons/favicon-48.png" type="image/png" sizes="48x48">
   <link rel="icon" href="assets/img/logo-fallback.svg" type="image/svg+xml">
   <script src="assets/js/theme.js"></script>
-  <link rel="stylesheet" href="assets/css/tokens.css">
-  <link rel="stylesheet" href="assets/css/styles.css">
-  <link rel="stylesheet" href="assets/css/pages.css">
+  <link rel="stylesheet" href="assets/css/site.css">
 </head>
 <body class="page-news">
   <a class="skip-link" href="#main" data-i18n="skip">Skip to main content</a>
@@ -68,8 +66,9 @@
             <span data-icon="shield" aria-hidden="true"></span><span data-i18n="hx.signin">Portals</span><span data-icon="chevron" aria-hidden="true"></span>
           </button>
           <div class="dd-menu" id="dd-signin">
-            <a href="admin.html" data-nav="admin"><strong data-i18n="signin.staff">Teacher &amp; staff</strong><small data-i18n="signin.staff.d">For teachers, office and administrators</small></a>
-            <a href="parent.html" data-nav="parent"><strong data-i18n="signin.parent">Parent portal</strong><small data-i18n="signin.parent.d">See your children and school notices</small></a>
+            <a href="teacher/" data-nav="teacher"><strong data-i18n="pt.teacher">Teacher portal</strong><small data-i18n="pt.teacher.d2">Classes, scores, lesson notes and exams</small></a>
+            <a href="student/" data-nav="student"><strong data-i18n="pt.student">Student portal</strong><small data-i18n="pt.student.d2">See your result and learn with games</small></a>
+            <a href="parent/" data-nav="parent"><strong data-i18n="signin.parent">Parent portal</strong><small data-i18n="signin.parent.d">See your children and school notices</small></a>
           </div>
         </div>
         <div class="tools tools-mobile">
@@ -158,10 +157,11 @@
         <nav aria-label="Portals">
           <h3 data-i18n="footer.portals">Portals</h3>
           <ul>
-            <li><a href="parent.html" data-i18n="signin.parent">Parent sign-in</a></li>
-            <li><a href="parent.html#pp-lookup" data-i18n="footer.result">Check a result</a></li>
+            <li><a href="parent/" data-i18n="signin.parent">Parent sign-in</a></li>
+            <li><a href="parent/#pp-lookup" data-i18n="footer.result">Check a result</a></li>
             <li><a href="track.html" data-i18n="footer.track">Track an application</a></li>
-            <li><a href="admin.html" data-i18n="signin.staff">Staff sign-in</a></li>
+            <li><a href="teacher/" data-i18n="pt.teacher">Teacher portal</a></li>
+            <li><a href="student/" data-i18n="pt.student">Student portal</a></li>
           </ul>
         </nav>
         <div>
@@ -187,16 +187,7 @@
   </dialog>
 
 
-  <script src="assets/js/i18n.js"></script>
-  <script src="assets/js/i18n-pages.js"></script>
-  <script src="assets/js/i18n-public.js"></script>
-  <script src="assets/js/site-config.js"></script>
-  <script src="assets/js/data.js"></script>
-  <script src="assets/js/core.js"></script>
-  <script src="assets/js/content.js"></script>
-  <script src="assets/js/public.js"></script>
-  <script src="assets/js/pwa.js"></script>
-  <script src="assets/js/news.js"></script>
-
+  <script src="assets/js/app.min.js"></script>
+  <script src="assets/js/p-news.min.js"></script>
 </body>
 </html>

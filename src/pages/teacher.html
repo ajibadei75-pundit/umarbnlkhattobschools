@@ -1,0 +1,31 @@
+<!--meta title="Teacher portal" desc="Teacher sign-in: classes, scores, lesson notes and exam questions." nav="teacher" dir="teacher" shell="portal" portal="pt.teacher" robots="noindex" key="pt.teacher" scripts="i18n-admissions backend report-sheet admin admin-results admin-ai admin-learning" -->
+    <section class="section tight">
+      <div class="container">
+        <div id="ad-login" lang="en" dir="ltr" class="form-card" style="max-width:460px;margin-inline:auto">
+          <h1 style="font-size:1.6rem;margin:0 0 .3rem" data-i18n="pt.teacher">Teacher portal</h1>
+          <p class="sec-lead" style="margin-bottom:1.2rem" data-i18n="pt.teacher.d">Sign in with the account the school created for you.</p>
+          <p class="notice" id="ad-cfg" hidden><span data-icon="alert"></span><span data-i18n="adm.e.cfg"></span></p>
+          <form id="ad-form" novalidate>
+            <div class="fld"><label for="ad-email" data-i18n="adm.gemail">Email</label><input class="input" id="ad-email" type="email" autocomplete="username" required></div>
+            <div class="fld" style="margin-top:1rem"><label for="ad-pass" data-i18n="ad.pass">Password</label><input class="input" id="ad-pass" type="password" autocomplete="current-password" required></div>
+            <div class="form-actions" style="margin-top:1.2rem"><button type="submit" class="btn btn-primary" id="ad-go" data-i18n="ad.signin">Sign in</button></div>
+            <div class="result" id="ad-result" role="alert" tabindex="-1"></div>
+          </form>
+        </div>
+
+        <div id="ad-app" lang="en" dir="ltr" data-allow="teacher,super_admin" data-tabs="myclasses,aitools,learning" hidden>
+          <div class="ad-bar"><div><h1 style="font-size:1.5rem;margin:0" data-i18n="pt.teacher">Teacher portal</h1><p class="count-line" style="margin:.2rem 0 0" id="ad-who"></p></div>
+            <button type="button" class="btn btn-soft btn-sm" id="ad-out" data-i18n="ad.signout">Sign out</button></div>
+          <div class="ad-shell"><nav class="ad-nav" id="ad-tabs" role="tablist" aria-label="Sections" aria-orientation="vertical"></nav><div class="ad-main">
+          <div id="p-myclasses" role="tabpanel" hidden></div>
+          <div id="p-aitools" role="tabpanel" hidden></div>
+          <div id="p-learning" role="tabpanel" hidden></div>
+          </div></div>
+        </div>
+      </div>
+    </section>
+
+    <dialog id="ad-dlg" lang="en" dir="ltr" class="dlg" aria-labelledby="ad-dlg-t" style="width:min(820px,96vw)">
+      <div class="dlg-head"><h2 id="ad-dlg-t" style="font-size:1.35rem;margin:0"></h2><button type="button" class="round x-btn" style="background:var(--surface-2);color:var(--text)" data-close aria-label="Close"></button></div>
+      <div class="dlg-body" id="ad-dlg-b"></div>
+    </dialog>

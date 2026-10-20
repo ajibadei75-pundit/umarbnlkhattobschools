@@ -1,0 +1,18 @@
+<!--meta title="Learning Centre" desc="Approved videos, downloadable materials, quizzes and learning games for Nursery, Primary, Secondary and Arabic." key="pg.learning" nav="learning" scripts="i18n-learning learning" h1="Learning Centre" lead="pg.learning.lead" lead_en="Approved videos, materials, quizzes and games, checked by the school." -->
+    <section class="section tight">
+      <div class="container">
+        <div class="toolbar" style="margin-top:1.2rem">
+          <div class="field-search"><span data-icon="search"></span><input id="lc-q" class="input" type="search" placeholder="Search the Learning Centre" aria-label="Search the Learning Centre" data-i18n-attr="placeholder:lc.search;aria-label:lc.search" autocomplete="off"></div>
+        </div>
+        <div class="level-tabs" id="lc-kinds" role="tablist" aria-label="Type" data-i18n-attr="aria-label:lc.type" style="margin-bottom:.8rem"></div>
+        <div class="chips" id="lc-levels" role="group" aria-label="Level" data-i18n-attr="aria-label:lc.level" style="margin-bottom:1.2rem"></div>
+        <p class="count-line" id="lc-count" aria-live="polite"></p>
+        <div class="news-grid" id="lc-grid"></div>
+        <div class="empty" id="lc-empty" hidden><span class="ico" data-icon="book"></span><h3 data-i18n="lc.empty">Nothing here yet.</h3><p data-i18n="lc.empty.d">New videos, materials and quizzes appear here once the school has checked and published them.</p></div>
+      </div>
+    </section>
+
+    <dialog id="lc-dlg" class="dlg" aria-labelledby="lc-dt">
+      <div class="dlg-head"><div class="post-meta" id="lc-dm"></div><button type="button" class="round x-btn" style="background:var(--surface-2);color:var(--text)" data-close data-i18n-attr="aria-label:close" aria-label="Close"></button></div>
+      <div class="dlg-body"><h2 id="lc-dt"></h2><div id="lc-db"></div></div>
+    </dialog>

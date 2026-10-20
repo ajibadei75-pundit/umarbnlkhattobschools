@@ -666,3 +666,17 @@ html:not([dir="rtl"]) .site-footer .footer-ar{text-align:left}
 @keyframes vt-out { to { opacity: 0; } } @keyframes vt-in { from { opacity: 0; } }
 .gl-tabs { display: flex; flex-wrap: wrap; justify-content: center; border-radius: var(--radius-lg); max-width: 100%; }
 .gl-tabs button { padding: 0 1.1rem; }
+
+/* ===== Portal shell (Stages 2 to 5) ===== */
+.portal-header .header-row { justify-content: space-between; }
+.tools-portal { display: flex; align-items: center; gap: .6rem; flex-wrap: wrap; justify-content: flex-end; }
+.portal-footer { border-top: 1px solid var(--border); padding: 1.2rem 0 1.6rem; color: var(--text-muted); font-size: .88rem; margin-top: 2rem; }
+.portal-footer .container { display: flex; flex-wrap: wrap; gap: .6rem 1.4rem; align-items: center; } .portal-footer .container > span { flex: 1 1 240px; }
+@media (max-width: 520px) { .pt-back { display: none; } .portal-header .brand-text small { display: none; } }
+.tools-portal { flex-wrap: nowrap; } .tools-portal .lang-select { width: auto; min-width: 0; } @media (max-width: 420px) { .tools-portal { gap: .35rem; } .tools-portal .theme-seg button { min-width: 36px; } }
+.st-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap: 1rem; margin-bottom: 1.4rem; }
+.pn-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: .7rem; }
+.pn-card { border: 1.5px dashed var(--border); border-radius: var(--radius-md); padding: .8rem; display: grid; gap: .1rem; break-inside: avoid; background: var(--surface); }
+.pn-card span { color: var(--text-muted); font-size: .85rem; } .pn-l { font-size: .7rem; text-transform: uppercase; letter-spacing: .08em; color: var(--text-muted); margin-top: .4rem; } .pn-v { font: 700 1.25rem var(--font-display); letter-spacing: .12em; } .pn-card small { margin-top: .4rem; color: var(--text-muted); }
+.md-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 230px), 1fr)); gap: .9rem; margin-top: 1.2rem; }
+.md-item { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); overflow: hidden; display: grid; } .md-item img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; } .md-item > div { padding: .8rem; display: grid; gap: .3rem; } .md-item small { color: var(--text-muted); }

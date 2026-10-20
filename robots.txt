@@ -1,5 +1,7 @@
 User-agent: *
 Allow: /
-Disallow: /admin.html
-Disallow: /parent.html
 Disallow: /offline.html
+Disallow: /teacher/
+Disallow: /parent/
+Disallow: /student/
+Disallow: /admin/
