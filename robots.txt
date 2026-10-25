@@ -5,3 +5,4 @@ Disallow: /teacher/
 Disallow: /parent/
 Disallow: /student/
 Disallow: /admin/
+Disallow: /bursar/
