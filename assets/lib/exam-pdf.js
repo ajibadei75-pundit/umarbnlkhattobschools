@@ -142,7 +142,7 @@
     }
     P.sections.forEach(function (s) {
       sectionHead(s);
-      var ans = /THEORY/.test(s.head) ? (sec2 ? 0 : 5) : /SHORT/.test(s.head) ? (sec2 ? 0 : 2) : 0;
+      var ans = /THEORY/.test(s.head) ? (sec2 ? 0 : (o.theoryLines != null ? o.theoryLines : 5)) : /SHORT/.test(s.head) ? (sec2 ? 0 : 2) : 0;
       s.items.forEach(function (it) { if (it.k === "q") question(it, ans); else if (it.k === "match") matching(it); else { d.setFont("helvetica", "normal"); d.setFontSize(SZ); d.splitTextToSize(it.text, CW).forEach(function (t) { need(LH); T(t, cx(), y, SZ, false, INK); y += LH; }); } });
     });
     need(12); y += 3; T("*** END OF PAPER ***", cx() + CW / 2, y, 9.5, true, PUR, "center"); y += 6;
