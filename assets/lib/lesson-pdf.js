@@ -4,7 +4,7 @@
 (function () {
   "use strict";
   var PUR = [48, 32, 120], GOLD = [213, 164, 59], TEAL = [22, 166, 163], LAV = [243, 240, 252], GREY = [90, 90, 90], INK = [20, 20, 20], LINE = [200, 194, 222];
-  var HEADS = /^(OBJECTIVES|BEHAVIOURAL OBJECTIVES|PREVIOUS KNOWLEDGE|TEACHING MATERIALS|INSTRUCTIONAL MATERIALS|CONCLUSION|KEY WORDS|INTRODUCTION|PRESENTATION|CLASS NOTE:.*|RULES AND FORMULAS|WORKED EXAMPLES|COMMON MISTAKES TO AVOID|IN REAL LIFE|SOURCE USED|BOARD SUMMARY|PRACTICE EXERCISE|SUPPORT AND EXTENSION|EVALUATION|ASSIGNMENT|AT HOME WITH PARENTS|ANSWERS TO THE PRACTICE EXERCISE.*|TEACHING PICTURES)$/;
+  var HEADS = /^(OBJECTIVES|BEHAVIOURAL OBJECTIVES|PREVIOUS KNOWLEDGE|TEACHING MATERIALS|INSTRUCTIONAL MATERIALS|CONCLUSION|KEY WORDS|INTRODUCTION|SHORT EXPLANATION \(TEACHER SAYS\)|RESOURCES|BOARD NOTE|HOOK AND ACTIVITY|PRESENTATION|CLASS NOTE:.*|RULES AND FORMULAS|WORKED EXAMPLES|COMMON MISTAKES TO AVOID|IN REAL LIFE|SOURCE USED|BOARD SUMMARY|PRACTICE EXERCISE|SUPPORT AND EXTENSION|EVALUATION|ASSIGNMENT|AT HOME WITH PARENTS|ANSWERS TO THE PRACTICE EXERCISE.*|TEACHING PICTURES)$/;
 
   function parse(txt) {
     var L = String(txt).split("\n"), P = { title: (L[0] || "").trim(), meta: {}, topic: "", intro: [], secs: [] }, i = 1, cur = null, m;
@@ -145,13 +145,46 @@
       ls.forEach(function (l, j) { if (l[1]) fill(TEAL, M + 5, y + 4.2 + j * 4.9 - 1.9, 1.5, 1.5); T(l[0], M + 9, y + 4.2 + j * 4.9, 9.5, false, INK); }); y += h + 3;
     }
 
+    /* board note: what the teacher writes on the board and pupils copy. First line = title, "Label:" lines = section labels, rest = short lines */
+    function boardBox(arr) {
+      var items = [], first = true;
+      arr.forEach(function (r) {
+        var t = r.replace(/\s+$/, ""); if (!t.trim()) return;
+        if (first) { items.push({ k: "title", t: t.trim() }); first = false; return; }
+        if (/^\S.*:$/.test(t)) items.push({ k: "label", t: t.replace(/:$/, "") });
+        else if (/^\s*DRAW:/i.test(t)) items.push({ k: "draw", t: t.replace(/^\s*DRAW:\s*/i, "") });
+        else items.push({ k: "line", t: t.trim() });
+      });
+      var IW = CW - 14, h = 8;
+      items.forEach(function (it) {
+        it.w = wrap(it.k === "draw" ? "Draw: " + it.t : it.t, IW - (it.k === "line" ? 6 : 0), it.k === "title" ? 13 : it.k === "label" ? 10.5 : 11.5, it.k !== "line" && it.k !== "draw");
+        it.h = it.w.length * (it.k === "title" ? 6.4 : 5.8) + (it.k === "label" ? 3 : it.k === "title" ? 3 : 1);
+        h += it.h;
+      });
+      if (h > 240) return arr.forEach(function (t) { lines([t]); });
+      need(Math.min(h + 4, 240)); if (y + h > H - 16) { d.addPage(); runHead(); }
+      var CR = [255, 252, 240]; fill(GOLD, M, y, CW, h); fill(CR, M + 1.2, y + 1.2, CW - 2.4, h - 2.4); fill(PUR, M + 2.4, y + 2.4, CW - 4.8, h - 4.8); fill(CR, M + 2.7, y + 2.7, CW - 5.4, h - 5.4);
+      var yy = y + 8;
+      items.forEach(function (it) {
+        it.w.forEach(function (l, j) {
+          if (it.k === "title") { T(l, M + 7, yy, 13, true, PUR); yy += 6.4; }
+          else if (it.k === "label") { T(l.toUpperCase(), M + 7, yy, 10.5, true, TEAL); yy += 5.8; }
+          else if (it.k === "draw") { T(l, M + 7, yy, 11, false, GREY, null, true); yy += 5.8; }
+          else { T(l, M + 13, yy, 11.5, false, INK); yy += 5.8; }
+        });
+        if (it.k === "title") { ln(M + 7, yy - 3.6, W - M - 7, yy - 3.6, GOLD, 0.5); yy += 3; } else if (it.k === "label") yy += 3; else yy += 1;
+      });
+      y += h + 3;
+    }
+
     P.secs.forEach(function (s) {
       var h = s.head;
       if (/^ANSWERS TO THE PRACTICE/.test(h) && !teacherCopy) { teacherCopy = true; need(30); y += 3; ln(M, y, W - M, y, GOLD, 0.6); y += 4; T("TEACHER COPY - not for pupils", M, y, 8, true, [165, 45, 53]); y += 3; }
       if (!s.lines.some(function (x) { return x.trim(); })) return;
-      bar(h);
+      need(30); bar(h);
       if (h === "PRESENTATION") return steps(s.lines);
-      if (h === "BOARD SUMMARY") return boxed(s.lines);
+      if (h === "BOARD NOTE") return boardBox(s.lines);
+      if (h === "BOARD SUMMARY" || h === "RESOURCES" || h === "HOOK AND ACTIVITY") return boxed(s.lines);
       if (h === "KEY WORDS") {
         var rows = []; s.lines.forEach(function (r) { var m = /^\s*-\s*([^:]+):\s*(.*)$/.exec(r); if (m) rows.push([m[1].trim(), m[2].trim()]); });
         if (rows.length) return twoCol(rows, "WORD", "MEANING");
