@@ -15,6 +15,26 @@
     $$("[data-adm-num]").forEach(function (n) { n.textContent = ADM.phone || ""; });
   }
 
+
+  /* Reading progress bar, and (phones only) a call / WhatsApp / apply bar that appears after a little scrolling.
+     The number comes from site-config; nothing is stored or sent. */
+  function extras() {
+    var h = $(".site-header"); if (!h || h.classList.contains("portal-header")) return;
+    var bar = document.createElement("div"); bar.className = "rd-bar"; bar.setAttribute("aria-hidden", "true"); bar.innerHTML = "<i></i>"; document.body.appendChild(bar);
+    var fill = bar.firstChild, act = null;
+    if (ADM.tel && !/admissions/.test(location.pathname)) {
+      act = document.createElement("nav"); act.className = "mb-act"; act.setAttribute("aria-label", "Admissions");
+      act.innerHTML = '<a data-adm="call" href="#"><span data-icon="phone" aria-hidden="true"></span><span data-i18n="mb.call">Call</span></a><a data-adm="wa" href="#"><span data-icon="chat" aria-hidden="true"></span><span data-i18n="mb.wa">WhatsApp</span></a><a class="p" href="' + (/\/(parent|student|teacher|admin|bursar)\//.test(location.pathname) ? "../" : "") + 'admissions.html"><span data-icon="arrow" aria-hidden="true"></span><span data-i18n="mb.apply">Apply</span></a>';
+      document.body.appendChild(act); document.body.classList.add("has-mb");
+      if (U.injectIcons) U.injectIcons(act); $$("[data-i18n]", act).forEach(function (n) { n.textContent = t(n.getAttribute("data-i18n")); }); admissions();
+    }
+    function off() { var a = $(".topbar"), b = $(".brandband"); h.style.setProperty("--hdr-off", "-" + ((a ? a.offsetHeight : 0) + (b ? b.offsetHeight : 0)) + "px"); }
+    off(); window.addEventListener("resize", off); window.addEventListener("load", off);
+    var tick = false;
+    function upd() { tick = false; var d = document.documentElement, max = d.scrollHeight - d.clientHeight, y = window.scrollY || d.scrollTop; fill.style.width = (max > 0 ? Math.min(100, y / max * 100) : 0) + "%"; if (act) act.classList.toggle("show", y > 320); }
+    window.addEventListener("scroll", function () { if (!tick) { tick = true; requestAnimationFrame(upd); } }, { passive: true }); upd();
+  }
+
   /* Header gets a soft shadow once the page is scrolled. */
   function header() {
     var h = $(".site-header"); if (!h) return;
@@ -62,6 +82,6 @@
     $$(".hx-marq-track").forEach(function (tr) { tr.innerHTML += tr.innerHTML; tr.setAttribute("aria-hidden", "true"); });
   }
 
-  U.init(function () { admissions(); header(); tilt(); word(); marquee(); });
+  U.init(function () { $$(".pt-switch a").forEach(function (a) { if (location.pathname.indexOf("/" + a.getAttribute("data-pt") + "/") > -1) a.setAttribute("aria-current", "page"); }); admissions(); header(); tilt(); word(); marquee(); extras(); });
   U.onLang(admissions);
 })();

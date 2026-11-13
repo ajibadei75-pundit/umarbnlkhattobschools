@@ -23,7 +23,9 @@
   <link rel="icon" href="assets/icons/favicon-48.png" type="image/png" sizes="48x48">
   <link rel="icon" href="assets/img/logo-fallback.svg" type="image/svg+xml">
   <script src="assets/js/theme.js"></script>
-  <link rel="stylesheet" href="assets/css/site.css">
+  <link rel="stylesheet" href="assets/css/tokens.css">
+  <link rel="stylesheet" href="assets/css/styles.css">
+  <link rel="stylesheet" href="assets/css/pages.css">
 </head>
 <body class="page-index">
   <a class="skip-link" href="#main" data-i18n="skip">Skip to main content</a>
@@ -119,6 +121,7 @@
 
       <div class="container hero-grid">
         <div class="hero-copy">
+          <p class="hq-hi" data-i18n="hq.hi">Welcome to our school family</p>
           <h1 data-i18n="hero.title">Nurturing young minds with knowledge and faith</h1>
           <p class="motto" data-i18n="hero.motto">Qur'an is our honour.</p>
           <p class="lead" data-i18n="hero.lead">A school community where academic excellence and Qur'anic education grow together.</p>
@@ -156,11 +159,20 @@
       </div>
     </section>
 
-    <div class="hx-marq" aria-label="Qur'an is our honour" data-i18n-attr="aria-label:hx.marq"><div class="hx-marq-track">
-      <span data-i18n="hx.marq">Qur'an is our honour</span><i aria-hidden="true">✦</i><span lang="ar" dir="rtl">القرآن شرف لنا</span><i aria-hidden="true">✦</i><span data-i18n="hx.marq">Qur'an is our honour</span><i aria-hidden="true">✦</i><span lang="ar" dir="rtl">القرآن شرف لنا</span><i aria-hidden="true">✦</i>
-    </div></div>
 
-    <section id="offer" class="section">
+    <section id="quick" class="section tight">
+      <div class="container">
+        <h2 class="sec-title reveal" data-i18n="hq.t">Welcome! What would you like to do?</h2>
+        <div class="hq-tiles">
+          <a class="hq-tile reveal" style="--i:0" href="admissions.html"><span class="hx-ico" data-icon="family" aria-hidden="true"></span><b data-i18n="hq.apply">Apply for admission</b><small data-i18n="hq.apply.d">Start online in a few minutes</small></a>
+          <a class="hq-tile reveal" style="--i:1" href="parent/"><span class="hx-ico" data-icon="users" aria-hidden="true"></span><b data-i18n="hq.parent">Parents' portal</b><small data-i18n="hq.parent.d">Fees, attendance and results</small></a>
+          <a class="hq-tile reveal" style="--i:2" href="learning.html"><span class="hx-ico" data-icon="book" aria-hidden="true"></span><b data-i18n="hq.learn">Play and learn</b><small data-i18n="hq.learn.d">Free games for little learners</small></a>
+          <a class="hq-tile reveal" style="--i:3" href="contact.html"><span class="hx-ico" data-icon="phone" aria-hidden="true"></span><b data-i18n="hq.contact">Contact us</b><small data-i18n="hq.contact.d">Call, WhatsApp or visit</small></a>
+        </div>
+      </div>
+    </section>
+
+    <section id="offer" class="section alt">
       <div class="container">
         <div class="sec-head reveal"><div><h2 class="sec-title" data-i18n="hx.offer.t">What we offer</h2><p class="sec-lead" style="margin:0" data-i18n="hx.offer.d">Four pillars that shape every school day.</p></div></div>
         <div class="hx-offer">
@@ -169,33 +181,6 @@
           <a class="hx-card reveal" style="--i:2" data-tilt href="academics.html"><span class="hx-ico" data-icon="users" aria-hidden="true"></span><h3 data-i18n="hx.o2s">Secondary</h3><p data-i18n="hx.o2s.d"></p><span class="link-arrow"><span data-i18n="hx.learn">Learn more</span><span data-icon="arrow" aria-hidden="true"></span></span></a>
           <a class="hx-card reveal" style="--i:3" data-tilt href="academics.html"><span class="hx-ico" data-icon="star" aria-hidden="true"></span><h3 data-i18n="hx.o3">Qur'anic studies</h3><p data-i18n="hx.o3.d"></p><span class="link-arrow"><span data-i18n="hx.learn">Learn more</span><span data-icon="arrow" aria-hidden="true"></span></span></a>
           <a class="hx-card reveal" style="--i:4" data-tilt href="academics.html"><span class="hx-ico" data-icon="school" aria-hidden="true"></span><h3 data-i18n="hx.o4">Arabic language</h3><p data-i18n="hx.o4.d"></p><span class="link-arrow"><span data-i18n="hx.learn">Learn more</span><span data-icon="arrow" aria-hidden="true"></span></span></a>
-        </div>
-      </div>
-    </section>
-
-    <section id="word" class="section alt">
-      <div class="container hx-split">
-        <div class="reveal">
-          <h2 class="sec-title" data-i18n="hx.word.t">Arabic word of the day</h2>
-          <p class="sec-lead" data-i18n="hx.word.d">A new word each day. Tap the card to see the meaning.</p>
-          <p class="count-line" data-i18n="hx.word.draft">Draft translations, to be checked by the school.</p>
-          <a class="btn btn-primary" href="learning.html"><span data-icon="book" aria-hidden="true"></span><span data-i18n="hx.word.play">Play learning games</span></a>
-        </div>
-        <button type="button" id="wotd" class="hx-word reveal" style="--i:1" aria-pressed="false">
-          <span class="hx-face hx-front"><span class="hx-ar" id="wotd-ar" lang="ar" dir="rtl"></span><span class="hx-tr" id="wotd-tr"></span></span>
-          <span class="hx-face hx-back"><span class="hx-ar" id="wotd-mean"></span></span>
-          <span class="hx-hint" id="wotd-hint"></span>
-        </button>
-      </div>
-    </section>
-
-    <section id="play" class="section tight">
-      <div class="container">
-        <div class="sec-head reveal"><div><h2 class="sec-title" data-i18n="hx.play.t">Play and learn</h2><p class="sec-lead" style="margin:0" data-i18n="hx.play.d">Free games for little learners. Nothing is saved.</p></div><a class="link-arrow" href="learning.html"><span data-i18n="hx.play.all">Open the Learning Centre</span><span data-icon="arrow" aria-hidden="true"></span></a></div>
-        <div class="hx-games">
-          <a class="hx-game reveal" style="--i:0" data-tilt href="learning.html"><b lang="ar" dir="rtl">أ ب ت</b><span data-i18n="hx.g1">Arabic letters</span></a>
-          <a class="hx-game reveal" style="--i:1" data-tilt href="learning.html"><b>1 2 3</b><span data-i18n="hx.g2">Counting</span></a>
-          <a class="hx-game reveal" style="--i:2" data-tilt href="learning.html"><b>A B C</b><span data-i18n="hx.g3">Alphabet</span></a>
         </div>
       </div>
     </section>
@@ -302,8 +287,18 @@
   </dialog>
 
 
-  <script src="assets/js/app.min.js"></script>
-  <script src="assets/js/lib.min.js"></script>
-  <script src="assets/js/p-index.min.js"></script>
+  <script src="assets/js/i18n.js"></script>
+  <script src="assets/js/i18n-pages.js"></script>
+  <script src="assets/js/i18n-public.js"></script>
+  <script src="assets/js/site-config.js"></script>
+  <script src="assets/js/data.js"></script>
+  <script src="assets/js/core.js"></script>
+  <script src="assets/js/content.js"></script>
+  <script src="assets/js/public.js"></script>
+  <script src="assets/js/session.js"></script>
+  <script src="assets/js/pwa.js"></script>
+  <script src="assets/js/i18n-admissions.js"></script>
+  <script src="assets/js/home.js"></script>
+
 </body>
 </html>

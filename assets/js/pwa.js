@@ -2,9 +2,10 @@
    Install uses the browser's own prompt where available; on iPhone/iPad it shows the Add to Home Screen steps. */
 (function () {
   "use strict";
+  var cs = document.currentScript, ROOT = cs && cs.src ? cs.src.replace(/assets\/js\/[^\/]*$/, "") : "./";
   var secure = location.protocol === "https:" || location.hostname === "localhost" || location.hostname === "127.0.0.1";
   if ("serviceWorker" in navigator && secure) {
-    window.addEventListener("load", function () { navigator.serviceWorker.register("sw.js", { scope: "./" }).catch(function () {}); });
+    window.addEventListener("load", function () { navigator.serviceWorker.register(ROOT + "sw.js", { scope: ROOT }).catch(function () {}); });
   }
   var deferred = null, btn = null;
   var standalone = window.matchMedia && window.matchMedia("(display-mode: standalone)").matches || navigator.standalone;

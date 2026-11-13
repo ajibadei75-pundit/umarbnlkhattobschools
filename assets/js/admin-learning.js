@@ -1,5 +1,4 @@
-/* Dashboard: Learning Centre manager. Staff add videos (links), materials (file or link) and quizzes.
-   Teachers can save drafts or send items "for review"; only content staff and administrators can publish. */
+/* Dashboard: Learning Centre manager. Only administrators add videos (links), materials (file or link) and quizzes. */
 (function () {
   "use strict";
   var U = window.UBK, $ = U.$, $$ = U.$$, esc = U.esc;
@@ -13,7 +12,7 @@
   function rest(m, p, b, x) { return A.api(m, p, b, x); }
   function say(el, ok, m) { if (!el) return; el.className = "result show " + (ok ? "ok" : "bad"); el.textContent = m; }
   function nice(e) { var m = (e && e.message) || ""; if (/row-level security|violates row/.test(m)) return "You are not allowed to do that (teachers cannot publish)."; if (/li_video_url/.test(m)) return "A video needs a link."; if (/li_material_src/.test(m)) return "A material needs a file or a link."; if (/url_check|https/.test(m)) return "Links must start with https://"; return A.nice(m); }
-  function isEditor() { return A.can(["super_admin", "school_admin", "content_editor"]); }
+  function isEditor() { return A.can(["super_admin", "school_admin"]); }
 
   /* quiz text <-> array. Format: a question line, then option lines starting with "-", the correct one starting with "*". Blank line between questions. */
   function parseQuiz(text) {

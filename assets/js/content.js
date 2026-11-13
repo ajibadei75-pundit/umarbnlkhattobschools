@@ -19,6 +19,7 @@
       return { id: e.id, cat: e.category, start: e.start_date, end: e.end_date || undefined, time: e.start_time || undefined, endTime: e.end_time || undefined, title: pick(e.title, l), location: e.location || "", description: pick(e.description, l) };
     }) : SAMPLE.events;
     D.faqs = raw.faqs.length ? raw.faqs.map(function (f) { return { id: f.id, q: pick(f.q, l), a: pick(f.a, l) }; }) : SAMPLE.faqs;
+    S.session = raw.session || null;
     var c = raw.contact;
     ["address", "email", "whatsapp", "mapUrl"].forEach(function (k) { S[k] = c ? (c[k] || "") : BASE_SITE[k]; });
     S.phones = c ? (c.phones || []) : BASE_SITE.phones; S.hours = c ? (c.hours || []) : BASE_SITE.hours;
@@ -39,12 +40,12 @@
     get("news?select=*&order=pinned.desc,publish_at.desc&limit=200"),
     get("events?select=*&order=start_date.asc&limit=500"),
     get("faqs?select=*&order=sort.asc&limit=100"),
-    get("site_settings?select=key,value&key=eq.contact")
+    get("site_settings?select=key,value&key=in.(contact,session)")
   ]).then(function (r) {
-    var fresh = { news: r[0], events: r[1], faqs: r[2], contact: r[3][0] ? r[3][0].value : null };
+    var fresh = { news: r[0], events: r[1], faqs: r[2], contact: (r[3].filter(function (x) { return x.key === "contact"; })[0] || {}).value || null, session: (r[3].filter(function (x) { return x.key === "session"; })[0] || {}).value || null };
     var changed = JSON.stringify(fresh) !== JSON.stringify(cached);
     try { localStorage.setItem(CACHE, JSON.stringify(fresh)); } catch (e) {}
-    apply(fresh); done();
+    apply(fresh); done(); if (window.UBK_SESSION) window.UBK_SESSION.refresh();
     if (changed && U.refresh) U.refresh();
   }, done);
 })();

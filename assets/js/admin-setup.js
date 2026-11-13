@@ -194,7 +194,7 @@
         var patch = { term: $("#rs-term").value, session_label: sess || null, next_term_begins: $("#rs-next").value || null, times_school_opened: o === "" ? null : +o, head_title: $("#rs-head").value,
           basic_name: $("#rs-bn").value.trim(), basic_sub: $("#rs-bs").value.trim(), secondary_name: $("#rs-sn").value.trim(), college_name: $("#rs-cn").value.trim(), arabic_name: $("#rs-ar").value.trim(), address: $("#rs-ad").value.trim(),
           affective_list: split($("#rs-af").value), skills_list: sk, behaviour_list: bh };
-        api("PATCH", "/rest/v1/report_settings?id=eq.1", patch, { Prefer: "return=minimal" }).then(function () { note(res, true, "Saved. New sheets use these details straight away."); }, function (er) { note(res, false, nice(er)); });
+        api("PATCH", "/rest/v1/report_settings?id=eq.1", patch, { Prefer: "return=representation" }).then(function (rows) { if (!rows || !rows.length) throw new Error("Nothing was saved. Your account may not be allowed to change report settings. Sign in as the administrator."); var b = rows[0]; note(res, true, "Saved and confirmed" + (b.next_term_begins ? ". Next term begins " + b.next_term_begins : "") + ". New sheets use these details straight away."); }, function (er) { note(res, false, nice(er)); });
       });
       $("#gs-save").addEventListener("click", function () {
         var res = $("#gs-res"), rows = [], bad = "";

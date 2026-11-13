@@ -6,12 +6,21 @@
   var U = window.UBK, $ = U.$, $$ = U.$$, esc = U.esc, icon = U.icon;
   var B = (window.UBK_SITE || {}).backend || {}, KEY = "ubk-session";
   var STATUSES = { submitted: "Received", under_review: "Under review", more_info_needed: "More information needed", offered: "Place offered", declined: "Not offered a place", withdrawn: "Withdrawn" };
-  var ROLES = { super_admin: "Super administrator", school_admin: "School administrator", admissions_officer: "Admissions officer", finance_officer: "Finance officer", content_editor: "Content editor", teacher: "Teacher" };
-  var session = null, role = null, apps = [], tab = "overview";
+  var ROLES = { super_admin: "Super administrator", school_admin: "School administrator", admissions_officer: "Admissions officer", finance_officer: "Finance officer", content_editor: "Content editor", publicity_manager: "Publicity manager", teacher: "Teacher", bursar: "Bursar", viewer: "Viewer" };
+  var session = null, role = null, apps = [], tab = "overview", setupOpen = false;
 
   /* ---------- session ---------- */
-  function load() { try { return JSON.parse(sessionStorage.getItem(KEY) || "null"); } catch (e) { return null; } }
-  function save(s) { session = s; try { if (s) sessionStorage.setItem(KEY, JSON.stringify(s)); else sessionStorage.removeItem(KEY); } catch (e) {} }
+  /* "Stay signed in on this phone" (teacher portal checkbox, off by default elsewhere): the session is also kept in localStorage so the
+     teacher's saved work stays reachable after the screen turns off, the tab is closed or the phone is offline. Signing out clears both. */
+  function keepIn() { try { return localStorage.getItem("ubk-keepin") === "1"; } catch (e) { return false; } }
+  function load() { try { return JSON.parse(sessionStorage.getItem(KEY) || (keepIn() ? localStorage.getItem(KEY) : "") || "null"); } catch (e) { return null; } }
+  function save(s) {
+    session = s;
+    try { if (s) sessionStorage.setItem(KEY, JSON.stringify(s)); else sessionStorage.removeItem(KEY); } catch (e) {}
+    try { if (s && keepIn()) localStorage.setItem(KEY, JSON.stringify(s)); else localStorage.removeItem(KEY); } catch (e) {}
+  }
+  var offline = false;
+  function roleKey() { return "ubk-role:" + ((session && session.email) || ""); }
   function baseHeaders(auth) { var h = { apikey: B.key, "Content-Type": "application/json" }; if (auth) h.Authorization = "Bearer " + auth; return h; }
   function authCall(path, body) {
     return fetch(B.url + "/auth/v1/" + path, { method: "POST", headers: baseHeaders(), body: JSON.stringify(body) }).then(function (r) {
@@ -22,7 +31,7 @@
   function fresh() {
     if (!session) return Promise.reject(new Error("signed_out"));
     if (Date.now() < session.exp) return Promise.resolve(session.access);
-    return authCall("token?grant_type=refresh_token", { refresh_token: session.refresh }).then(function (j) { adopt(j); return session.access; }, function (e) { save(null); throw e; });
+    return authCall("token?grant_type=refresh_token", { refresh_token: session.refresh }).then(function (j) { adopt(j); return session.access; }, function (e) { if (e.status) save(null); throw e; });   /* no status = no network: keep the session so saved work stays available */
   }
   function api(method, path, body, extra) {
     return fresh().then(function (tok) {
@@ -49,49 +58,120 @@
     return "That did not work: " + msg;
   }
   function can(list) { return list.indexOf(role) > -1; }
-  var ADM = ["super_admin", "school_admin", "admissions_officer"], CMS = ["super_admin", "school_admin", "content_editor"];
+  var ADM = ["super_admin", "school_admin", "admissions_officer"], CMS = ["super_admin", "school_admin", "content_editor", "publicity_manager"];
 
   /* ---------- sign in / out ---------- */
   function showLogin(msg) {
     $("#ad-login").hidden = false; $("#ad-app").hidden = true;
     var r = $("#ad-result"); r.className = msg ? "result show bad" : "result"; r.textContent = msg || "";
   }
+  (function () {
+    var h = location.hash || "";
+    if (/error_code=otp_expired|error=access_denied/.test(h)) {
+      setTimeout(function () { var r = $("#ad-result"); if (r) { r.className = "result show bad"; r.textContent = "That confirmation link has expired or was already used. Just sign in with your email and password. If it says the email is not confirmed, ask the person who manages Supabase to confirm the account."; } }, 0);
+      try { history.replaceState(null, "", location.pathname + location.search); } catch (e) {}
+    }
+  })();
   function start() {
     rpc("staff_role").then(function (r) {
       role = r;
-      if (!role) { save(null); showLogin("This account is not set up as school staff. Ask a super administrator to add you."); return; }
-      $("#ad-login").hidden = true; $("#ad-app").hidden = false;
-      $("#ad-who").textContent = (session.email || "") + " · " + ROLES[role];
-      buildTabs();
-    }, function () { save(null); showLogin(""); });
+      if (!role) {
+        if (setupOpen && $("#ad-setup")) { showSetup(true); return; }
+        save(null); showLogin("This account is not set up as school staff. Ask a super administrator to add you."); return;
+      }
+      var allow = ($("#ad-app").getAttribute("data-allow") || "").split(",").filter(Boolean);
+      if (allow.length && allow.indexOf(role) < 0) { var r0 = role; save(null); role = null; showLogin("This account (" + (ROLES[r0] || r0) + ") belongs to a different portal. " + (r0 === "teacher" ? "Use /teacher." : "Use /admin.")); return; }
+      try { localStorage.setItem(roleKey(), role); } catch (e) {}
+      enter();
+    }, function (err) {
+      var cached = null; try { cached = localStorage.getItem(roleKey()); } catch (e) {}
+      if (err && !err.status && session && cached) { offline = true; role = cached; enter(); return; }   /* offline: open the saved work on this phone */
+      save(null); showLogin("");
+    });
+  }
+  function enter() {
+    $("#ad-login").hidden = true; $("#ad-app").hidden = false;
+    $("#ad-who").textContent = (session.email || "") + " · " + ROLES[role] + (offline ? " · offline" : "");
+    var bn = $("#ad-offline");
+    if (offline) {
+      if (!bn) { bn = document.createElement("p"); bn.id = "ad-offline"; bn.className = "notice is-info"; bn.setAttribute("role", "status"); $("#ad-tabs").parentNode.insertBefore(bn, $("#ad-tabs")); }
+      bn.textContent = "You are offline. Your saved notes are on this phone. Anything you change is kept here and uploads by itself when you are back online.";
+      window.addEventListener("online", function () { location.reload(); });
+    } else if (bn) bn.remove();
+    buildTabs();
   }
   function signIn(e) {
     e.preventDefault();
     var em = $("#ad-email").value.trim(), pw = $("#ad-pass").value;
     if (!em || !pw) { showLogin("Enter your email and password."); return; }
     $("#ad-go").disabled = true;
+    var kp = $("#ad-keep"); if (kp) { try { localStorage.setItem("ubk-keepin", kp.checked ? "1" : "0"); } catch (e) {} }
     authCall("token?grant_type=password", { email: em, password: pw }).then(function (j) { adopt(j); $("#ad-pass").value = ""; start(); },
       function (err) { showLogin(err.status === 400 || err.status === 401 ? "Email or password is not correct." : "Could not sign in. Check your connection and try again."); })
       .then(function () { $("#ad-go").disabled = false; });
   }
   function signOut() {
-    var tok = session && session.access; save(null); role = null; apps = [];
+    var tok = session && session.access, rk = roleKey(); save(null); role = null; apps = []; try { localStorage.removeItem("ubk-keepin"); localStorage.removeItem(rk); } catch (e) {}
     if (tok) fetch(B.url + "/auth/v1/logout", { method: "POST", headers: baseHeaders(tok) }).catch(function () {});
     showLogin("");
+  }
+
+
+  /* ---------- first-time setup: the very first administrator (closes itself once any staff exists) ---------- */
+  function suSay(ok, m) { var r = $("#su-res"); r.className = "result show " + (ok ? "ok" : "bad"); r.textContent = m; }
+  function showSetup(signedIn) {
+    $("#ad-setup").hidden = false; $("#ad-app").hidden = true;
+    if (signedIn) { $("#ad-login").hidden = true; $("#su-ef").hidden = true; $("#su-pf").hidden = true; $("#su-go").textContent = "Claim administrator access"; $("#su-lead").textContent = "You are signed in as " + (session && session.email) + ". Enter the setup code to become the administrator."; }
+  }
+  function claim(code, name) {
+    return rpc("claim_first_admin", { p_code: code, p_name: name || null }).then(function (r) {
+      if (r === "ok") { setupOpen = false; $("#ad-setup").hidden = true; start(); return; }
+      suSay(false, r === "bad_code" ? "That setup code is not correct." : r === "closed" ? "An administrator already exists. Sign in instead." : r === "rate" ? "Too many tries. Please wait a little." : "Could not complete setup.");
+    }, function () { suSay(false, "Could not complete setup. Check your connection and try again."); });
+  }
+  function setupSubmit(e) {
+    e.preventDefault(); var name = $("#su-name").value.trim(), code = $("#su-code").value.replace(/[\s-]+/g, "").toUpperCase();
+    if (!code) return suSay(false, "Enter the setup code.");
+    $("#su-go").disabled = true;
+    var done = function () { $("#su-go").disabled = false; };
+    if (session) { claim(code, name).then(done); return; }
+    var em = $("#su-email").value.trim(), pw = $("#su-pass").value;
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(em)) { done(); return suSay(false, "Enter a valid email."); }
+    if (pw.length < 10) { done(); return suSay(false, "Use a password of at least 10 characters."); }
+    fetch(B.url + "/functions/v1/setup-admin", { method: "POST", headers: baseHeaders(), body: JSON.stringify({ email: em, password: pw, name: name, code: code }) }).then(function (r) {
+      return r.json().catch(function () { return {}; }).then(function (j) {
+        if (!r.ok) { var m = { bad_code: "That setup code is not right. Check it and try again.", closed: "Setup is already finished. Sign in above.", rate: "Too many wrong tries. Wait an hour and try again.", email_exists: "That email already has an account. Sign in above, then enter the setup code.", finish_failed: "The account could not be finished. Please try again; if it repeats, tell your developer.", failed: "Setup could not start. Please try again.", create_failed: "The account could not be created. Please try again.", weak_password: "Use a password of at least 10 characters.", bad_email: "Enter a valid email." }; throw new Error(m[j.error] || "Could not finish setup. Please try again."); }
+        return authCall("token?grant_type=password", { email: em, password: pw }).then(function (t) { adopt(t); $("#ad-setup").hidden = true; start(); });
+      });
+    }).catch(function (er) { suSay(false, er.message); }).then(done);
   }
 
   /* ---------- tabs ---------- */
   function buildTabs() {
     var tabs = role === "teacher" ? [] : [["overview", "Overview"]];
     if (role === "teacher") tabs.push(["myclasses", "My classes"]);
+    if (can(["super_admin", "school_admin", "teacher"])) tabs.push(["timetable", "Timetable"]);
+    if (role === "teacher") tabs.push(["lessons", "Lesson notes"]);
+    if (can(["super_admin", "school_admin"])) { tabs.push(["topics", "Weekly topics"]); tabs.push(["approvals", "Note approvals"]); }
+    if (can(["super_admin", "school_admin", "teacher", "viewer"])) tabs.push(["attendance", "Attendance"]);
     if (can(["super_admin", "school_admin", "teacher"])) tabs.push(["aitools", "Teacher tools"]);
     if (can(ADM)) tabs.push(["admissions", "Admissions manager"]);
     if (can(CMS)) tabs.push(["content", "Website content"]);
     if (can(["super_admin", "school_admin"])) { tabs.push(["results", "Results and reports"]); tabs.push(["people", "Pupils and parents"]); }
-    if (can(["super_admin", "school_admin", "content_editor", "teacher"])) tabs.push(["learning", "Learning Centre"]);
-    if (can(["super_admin", "school_admin", "finance_officer"])) tabs.push(["payments", "Payments"]);
-    if (can(["super_admin"])) tabs.push(["staff", "Users and roles"]);
-    var IC = { overview: "grid", admissions: "family", content: "news", people: "users", staff: "shield", myclasses: "book", results: "list", aitools: "news", payments: "list", learning: "book" };
+    if (can(["super_admin", "school_admin"])) tabs.push(["pins", "Student PINs"]);
+    if (can(CMS)) tabs.push(["media", "Gallery and leadership"]);
+    if (can(["super_admin", "school_admin"])) tabs.push(["resources", "School resources"]);
+    if (can(["super_admin", "school_admin"])) tabs.push(["learning", "Learning Centre"]);
+    if (can(["super_admin", "school_admin", "bursar", "finance_officer", "viewer"])) tabs.push(["bursar", "Fees and receipts"]);
+    if (can(["super_admin", "school_admin", "bursar", "finance_officer"])) tabs.push(["payments", "Parent payment proofs"]);
+    if (can(["super_admin", "school_admin", "bursar", "finance_officer"])) tabs.push(["backup", "Backup and import"]);
+    if (can(["super_admin"])) tabs.push(["staff", "Users and logins"]);
+    tabs.push(["account", "My account"]);
+    if (offline) tabs = tabs.filter(function (x) { return x[0] === "aitools" || x[0] === "account"; });
+    var only = ($("#ad-app").getAttribute("data-tabs") || "").split(",").filter(Boolean);
+    if (only.length) tabs = tabs.filter(function (x) { return only.indexOf(x[0]) >= 0; });
+    if (!tabs.length) { $("#ad-tabs").innerHTML = ""; return; }
+    var IC = { timetable: "grid", lessons: "book", topics: "list", approvals: "shield", overview: "grid", admissions: "family", content: "news", people: "users", staff: "shield", myclasses: "book", results: "list", aitools: "news", payments: "list", bursar: "list", attendance: "family", learning: "book", pins: "shield", media: "grid", resources: "book", backup: "download", account: "users" };
     $("#ad-tabs").innerHTML = tabs.map(function (x) { return '<button type="button" role="tab" data-tab="' + x[0] + '" aria-selected="false">' + icon(IC[x[0]] || "list") + "<span>" + esc(x[1]) + "</span></button>"; }).join("");
     $$("#ad-tabs button").forEach(function (b, i, all) {
       b.addEventListener("click", function () { go(b.getAttribute("data-tab")); });
@@ -101,20 +181,23 @@
       });
     });
     var h = (location.hash || "").slice(1);
+    setTimeout(function () { if (window.UBK_ADMIN.alerts) window.UBK_ADMIN.alerts(); }, 300);
     go(tabs.some(function (x) { return x[0] === h; }) ? h : tabs[0][0]);
   }
   function go(t) {
     tab = t;
     $$("#ad-tabs button").forEach(function (b) { var on = b.getAttribute("data-tab") === t; b.setAttribute("aria-selected", String(on)); b.tabIndex = on ? 0 : -1; });
     var cur = $('#ad-tabs [aria-selected="true"]'); if (cur && cur.scrollIntoView && window.innerWidth < 900) try { cur.scrollIntoView({ block: "nearest", inline: "center" }); } catch (e) {}
-    ["overview", "admissions", "content", "people", "staff", "myclasses", "results", "aitools", "payments", "learning"].forEach(function (k) { $("#p-" + k).hidden = k !== t; });
+    $$(".ad-main > [role=tabpanel]").forEach(function (el) { el.hidden = el.id !== "p-" + t; });
     try { history.replaceState(null, "", "#" + t); } catch (e) {}
-    if (t === "overview") overview(); if (t === "admissions") loadApps(); if (t === "content" && window.UBK_ADMIN.content) window.UBK_ADMIN.content($("#p-content")); if (t === "people" && window.UBK_ADMIN.people) window.UBK_ADMIN.people($("#p-people")); if (t === "myclasses" && window.UBK_ADMIN.teach) window.UBK_ADMIN.teach($("#p-myclasses")); if (t === "results" && window.UBK_ADMIN.results) window.UBK_ADMIN.results($("#p-results")); if (t === "aitools" && window.UBK_ADMIN.aitools) window.UBK_ADMIN.aitools($("#p-aitools")); if (t === "payments" && window.UBK_ADMIN.payments) window.UBK_ADMIN.payments($("#p-payments")); if (t === "learning" && window.UBK_ADMIN.learning) window.UBK_ADMIN.learning($("#p-learning")); if (t === "staff") staffPanel();
+    if (t === "overview") overview(); if (t === "admissions") loadApps(); if (t === "content" && window.UBK_ADMIN.content) window.UBK_ADMIN.content($("#p-content")); if (t === "people" && window.UBK_ADMIN.people) window.UBK_ADMIN.people($("#p-people")); if (t === "myclasses" && window.UBK_ADMIN.teach) window.UBK_ADMIN.teach($("#p-myclasses")); if (t === "results" && window.UBK_ADMIN.results) window.UBK_ADMIN.results($("#p-results")); if (t === "aitools" && window.UBK_ADMIN.aitools) window.UBK_ADMIN.aitools($("#p-aitools")); if (t === "payments" && window.UBK_ADMIN.payments) window.UBK_ADMIN.payments($("#p-payments")); if (t === "attendance" && window.UBK_ADMIN.attendance) window.UBK_ADMIN.attendance($("#p-attendance")); if (t === "bursar" && window.UBK_ADMIN.bursar) window.UBK_ADMIN.bursar($("#p-bursar")); if (t === "learning" && window.UBK_ADMIN.learning) window.UBK_ADMIN.learning($("#p-learning")); if (t === "staff" && window.UBK_ADMIN.staffUsers) window.UBK_ADMIN.staffUsers($("#p-staff")); if (t === "account" && window.UBK_ADMIN.account) window.UBK_ADMIN.account($("#p-account")); if (t === "pins" && window.UBK_ADMIN.pins) window.UBK_ADMIN.pins($("#p-pins")); if (t === "resources" && window.UBK_ADMIN.resources) window.UBK_ADMIN.resources($("#p-resources")); if (t === "backup" && window.UBK_ADMIN.backupTab) window.UBK_ADMIN.backupTab($("#p-backup")); if (t === "media" && window.UBK_ADMIN.media) window.UBK_ADMIN.media($("#p-media"));
+    if (window.UBK_ADMIN.tabs && window.UBK_ADMIN.tabs[t]) window.UBK_ADMIN.tabs[t]($("#p-" + t));
   }
 
   /* ---------- overview ---------- */
   function overview() {
     var host = $("#p-overview");
+    if (can(["super_admin", "school_admin", "viewer"]) && window.UBK_ADMIN.stats) return window.UBK_ADMIN.stats(host);
     if (!can(ADM)) { host.innerHTML = '<div class="empty"><h3>Welcome</h3><p>Your role (' + esc(ROLES[role]) + ") " + (can(CMS) ? 'can manage the website content. Open "Website content" above.' : "has no dashboard modules yet.") + "</p></div>"; return; }
     host.innerHTML = '<p class="count-line">Loading...</p>';
     loadApps(true).then(function () {
@@ -205,34 +288,21 @@
     }, function () { btn.textContent = "Unavailable"; }).then(function () { btn.disabled = false; });
   }
 
-  /* ---------- staff ---------- */
-  function staffPanel() {
-    var host = $("#p-staff"); host.innerHTML = '<p class="count-line">Loading...</p>';
-    rpc("admin_list_staff").then(function (list) {
-      host.innerHTML = '<div class="ad-table-wrap"><table class="ad-table"><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Access</th></tr></thead><tbody>' + list.map(function (s) {
-        return "<tr><td>" + esc(s.full_name || "") + "</td><td>" + esc(s.email) + "</td><td>" + esc(ROLES[s.role] || s.role) + "</td><td>" + (s.active ? "Active " : "Disabled ") + '<button type="button" class="btn btn-soft btn-sm" data-u="' + esc(s.user_id) + '" data-a="' + (s.active ? 0 : 1) + '">' + (s.active ? "Disable" : "Enable") + "</button></td></tr>";
-      }).join("") + "</tbody></table></div>" +
-        '<div class="form-card" style="margin-top:1.6rem"><h2 style="font-size:1.2rem">Give a person staff access</h2><p class="count-line">They need an account first: create the user in Supabase (Authentication, Add user), then add their role here.</p>' +
-        '<form id="st-form" novalidate><div class="form-grid"><div class="fld"><label for="st-email">Email</label><input class="input" id="st-email" type="email"></div><div class="fld"><label for="st-name">Full name</label><input class="input" id="st-name" maxlength="80"></div>' +
-        '<div class="fld full"><label for="st-role">Role</label><select class="select-lg" id="st-role">' + Object.keys(ROLES).map(function (k) { return '<option value="' + k + '">' + esc(ROLES[k]) + "</option>"; }).join("") + '</select></div></div><div class="form-actions"><button type="submit" class="btn btn-primary">Save access</button></div><div class="result" id="st-res" role="status"></div></form></div>';
-      $$("[data-u]", host).forEach(function (b) { b.addEventListener("click", function () { rpc("admin_set_staff_active", { p_user: b.getAttribute("data-u"), p_active: b.getAttribute("data-a") === "1" }).then(staffPanel, function (e) { alert(nice(e.message)); }); }); });
-      $("#st-form").addEventListener("submit", function (e) {
-        e.preventDefault(); var r = $("#st-res");
-        rpc("admin_add_staff", { p_email: $("#st-email").value, p_role: $("#st-role").value, p_name: $("#st-name").value }).then(function () { staffPanel(); }, function (err) { r.className = "result show bad"; r.textContent = nice(err.message); });
-      });
-    }, function (e) { host.innerHTML = '<div class="notice"><span>' + esc(nice(e.message)) + "</span></div>"; });
-  }
+
 
   function uid() { try { return JSON.parse(atob(session.access.split(".")[1].replace(/-/g, "+").replace(/_/g, "/"))).sub; } catch (e) { return null; } }
-  window.UBK_ADMIN = { api: api, fresh: fresh, nice: nice, can: can, role: function () { return role; }, uid: uid, rpc: rpc };
+  window.UBK_ADMIN = { offline: function () { return offline; }, email: function () { return session && session.email || ""; }, api: api, fresh: fresh, nice: nice, can: can, role: function () { return role; }, uid: uid, rpc: rpc };
   U.init(function () {
     if (!B.url || !B.key) { $("#ad-cfg").hidden = false; $("#ad-go").disabled = true; return; }
     $("#ad-form").addEventListener("submit", signIn);
+    if ($("#ad-setup")) { $("#su-form").addEventListener("submit", setupSubmit); fetch(B.url + "/rest/v1/rpc/setup_open", { method: "POST", headers: { apikey: B.key, "Content-Type": "application/json" }, body: "{}" }).then(function (r) { return r.json(); }).then(function (o) { setupOpen = o === true; if (setupOpen && !session) $("#ad-setup").hidden = false; }).catch(function () {}); }
     $("#ad-out").addEventListener("click", signOut);
     U.dialog($("#ad-dlg")); $("#ad-dlg .x-btn").innerHTML = icon("close", 2);
-    ["#ad-q", "#ad-fs", "#ad-fl"].forEach(function (s) { $(s).addEventListener("input", renderApps); });
-    $("#ad-fs").innerHTML += Object.keys(STATUSES).map(function (k) { return '<option value="' + k + '">' + esc(STATUSES[k]) + "</option>"; }).join("");
-    $("#ad-csv").addEventListener("click", csv); $("#ad-reload").addEventListener("click", function () { loadApps().catch(function () {}); });
+    if ($("#ad-q")) {   /* the admissions manager exists only on the admin page */
+      ["#ad-q", "#ad-fs", "#ad-fl"].forEach(function (s) { $(s).addEventListener("input", renderApps); });
+      $("#ad-fs").innerHTML += Object.keys(STATUSES).map(function (k) { return '<option value="' + k + '">' + esc(STATUSES[k]) + "</option>"; }).join("");
+      $("#ad-csv").addEventListener("click", csv); $("#ad-reload").addEventListener("click", function () { loadApps().catch(function () {}); });
+    }
     session = load(); if (session) start();
   });
 })();

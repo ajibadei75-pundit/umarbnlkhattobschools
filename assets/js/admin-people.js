@@ -1,27 +1,27 @@
-/* Dashboard: pupils and parent accounts. Staff (super administrator, school administrator) add pupils, create parent
-   access, and link each parent to their own children. Parents then see only the children linked here. */
+/* Dashboard: Pupils and parents. The student register (admin-students.js), enrolment from applications, and parent accounts
+   linked to their own children. Parents then see only the children linked here. */
 (function () {
   "use strict";
-  var U = window.UBK, $ = U.$, $$ = U.$$, esc = U.esc;
-  var A = window.UBK_ADMIN; if (!A) return;
+  var U = window.UBK, $ = U.$, $$ = U.$$, esc = U.esc, A = window.UBK_ADMIN;
+  if (!A) return;
   var LEVELS = { nursery: "Nursery", primary: "Primary", secondary: "Secondary" };
-  var host, pupils = [], parents = [], admissions = [];
+  var host, sub = "students", pupils = [], parents = [], admissions = [], classes = [];
 
-  function lvlOpts(sel) { return Object.keys(LEVELS).map(function (k) { return '<option value="' + k + '"' + (k === sel ? " selected" : "") + ">" + LEVELS[k] + "</option>"; }).join(""); }
   function note(el, ok, msg) { el.className = "result show " + (ok ? "ok" : "bad"); el.textContent = msg; }
   function nice(m) {
     if (/user_not_found/.test(m)) return "No account with that email. Create the user in Supabase (Authentication, Add user) first, then add them here.";
+    if (/students_admission_no_uq|duplicate key.*admission/.test(m)) return "That admission number is already used by another pupil.";
     if (/duplicate key/.test(m)) return "That child is already linked to this parent.";
     return A.nice(m);
   }
+  function clsOpts(sel, blank) { return '<option value="">' + blank + "</option>" + classes.map(function (c) { return '<option value="' + esc(c.id) + '"' + (sel === c.id ? " selected" : "") + ">" + esc(c.name) + "</option>"; }).join(""); }
+  function sexOpts(sel) { return '<option value="">Not set</option><option value="male"' + (sel === "male" ? " selected" : "") + '>Male</option><option value="female"' + (sel === "female" ? " selected" : "") + ">Female</option>"; }
+  function btn(act, v, label) { return '<button type="button" class="btn btn-soft btn-sm" data-' + act + '="' + esc(v) + '">' + label + "</button>"; }
 
-  var classes = [];
-  function clsOpts(sel, blank) { return (blank ? '<option value="">' + blank + "</option>" : "") + classes.map(function (c) { return '<option value="' + esc(c.id) + '"' + (sel === c.id ? " selected" : "") + ">" + esc(c.name) + "</option>"; }).join(""); }
-  function sexOpts(sel) { return '<option value="">Not set</option><option value="M"' + (sel === "M" ? " selected" : "") + ">Male</option><option value=\"F\"" + (sel === "F" ? " selected" : "") + ">Female</option>"; }
   function load() {
     host.innerHTML = '<p class="count-line">Loading...</p>';
     return Promise.all([
-      A.api("GET", "/rest/v1/students?select=*&order=first_name.asc&limit=2000"),
+      A.api("GET", "/rest/v1/students?select=*&order=last_name.asc&limit=3000"),
       A.api("GET", "/rest/v1/classes?select=id,name,level,section&order=section.desc,sort.asc,name.asc"),
       A.api("POST", "/rest/v1/rpc/admin_list_parents", {}),
       A.api("GET", "/rest/v1/admissions?select=id,reference,child_first_name,child_last_name,level,status&order=created_at.desc&limit=500")
@@ -29,76 +29,61 @@
       function (e) { host.innerHTML = '<div class="notice"><span>' + esc(nice(e.message)) + "</span></div>"; });
   }
   function render() {
-    var enrolled = {}; pupils.forEach(function (p) { if (p.admission_id) enrolled[p.admission_id] = 1; });
-    var open = admissions.filter(function (a) { return !enrolled[a.id] && a.status !== "declined" && a.status !== "withdrawn"; });
-    var active = pupils.filter(function (p) { return p.active; });
-    host.innerHTML =
-      '<h2 class="sec-title" style="font-size:1.15rem">Pupils (' + pupils.length + ')</h2>' +
-      (pupils.length ? '<div class="ad-table-wrap"><table class="ad-table"><thead><tr><th>Name</th><th>Student ID</th><th>Class</th><th>Status</th></tr></thead><tbody>' + pupils.map(function (p) {
-        return '<tr tabindex="0" data-p="' + esc(p.id) + '"><td><strong>' + esc(p.first_name + " " + p.last_name) + "</strong></td><td>" + esc(p.student_code || "") + "</td><td>" + esc(p.class_name || "Not assigned") + "</td><td>" + (p.active ? "Active" : "Inactive") + "</td></tr>";
-      }).join("") + "</tbody></table></div>" : '<div class="empty"><p>No pupils yet. Add one below or enrol from an application.</p></div>') +
-      '<div class="two-col" style="margin-top:1.4rem"><div class="form-card"><h3 style="font-size:1.05rem;margin:0 0 .6rem">Add a pupil</h3><form id="pe-add" novalidate><div class="form-grid">' +
-      '<div class="fld"><label for="pe-fn">First name</label><input class="input" id="pe-fn" maxlength="60"></div><div class="fld"><label for="pe-ln">Last name</label><input class="input" id="pe-ln" maxlength="60"></div>' +
-      '<div class="fld"><label for="pe-cl">Class</label><select class="select-lg" id="pe-cl">' + clsOpts("", "Choose a class...") + '</select></div><div class="fld"><label for="pe-sx">Sex</label><select class="select-lg" id="pe-sx">' + sexOpts("") + '</select></div></div>' +
-      '<div class="form-actions" style="margin-top:1rem"><button class="btn btn-primary btn-sm" type="submit">Add pupil</button></div><div class="result" id="pe-res" role="status"></div></form></div>' +
-      '<div class="form-card"><h3 style="font-size:1.05rem;margin:0 0 .6rem">Enrol from an application</h3><p class="count-line">Creates the pupil from the application details. Choose it only after the school has offered the place.</p>' +
-      '<form id="pe-enrol" novalidate><div class="fld"><label for="pe-ad">Application</label><select class="select-lg" id="pe-ad"><option value="">Choose...</option>' + open.map(function (a) { return '<option value="' + esc(a.id) + '">' + esc(a.reference + " · " + a.child_first_name + " " + a.child_last_name + " (" + a.status.replace(/_/g, " ") + ")") + "</option>"; }).join("") + '</select></div>' +
-      '<div class="form-actions" style="margin-top:1rem"><button class="btn btn-primary btn-sm" type="submit">Enrol pupil</button></div><div class="result" id="pe-res2" role="status"></div></form></div></div>' +
-
-      '<h2 class="sec-title" style="font-size:1.15rem;margin-top:2.4rem">Parent accounts (' + parents.length + ')</h2>' +
-      (parents.length ? '<div class="ad-table-wrap"><table class="ad-table"><thead><tr><th>Parent</th><th>Linked children</th><th>Link a child</th><th>Access</th></tr></thead><tbody>' + parents.map(function (p) {
-        return '<tr><td><strong>' + esc(p.full_name || "") + "</strong><br><small>" + esc(p.email) + "</small></td><td>" +
-          (p.children.length ? p.children.map(function (c) { return '<span class="chip-pill">' + esc(c.name) + ' <button type="button" class="x-mini" data-unlink="' + esc(c.link) + '" aria-label="Unlink ' + esc(c.name) + '">&times;</button></span>'; }).join(" ") : "<em>None</em>") + "</td>" +
-          '<td><div class="pe-link"><select class="select-lg" data-sel="' + esc(p.user_id) + '" aria-label="Child to link to ' + esc(p.email) + '"><option value="">Choose...</option>' + active.map(function (s) { return '<option value="' + esc(s.id) + '">' + esc(s.first_name + " " + s.last_name + " (" + LEVELS[s.level] + ")") + "</option>"; }).join("") + '</select><button type="button" class="btn btn-soft btn-sm" data-link="' + esc(p.user_id) + '">Link</button></div></td>' +
-          "<td>" + (p.active ? "Active " : "Disabled ") + '<button type="button" class="btn btn-soft btn-sm" data-act="' + esc(p.user_id) + '" data-v="' + (p.active ? 0 : 1) + '">' + (p.active ? "Disable" : "Enable") + "</button></td></tr>";
-      }).join("") + "</tbody></table></div>" : '<div class="empty"><p>No parent accounts yet.</p></div>') +
-      '<div class="form-card" style="margin-top:1.4rem"><h3 style="font-size:1.05rem;margin:0 0 .3rem">Give a parent access</h3><p class="count-line">Create the user in Supabase first (Authentication, Add user, with a password you give the parent), then add their email here and link their children.</p>' +
-      '<form id="pa-add" novalidate><div class="form-grid"><div class="fld"><label for="pa-em">Email</label><input class="input" id="pa-em" type="email"></div><div class="fld"><label for="pa-nm">Full name</label><input class="input" id="pa-nm" maxlength="100"></div></div>' +
-      '<div class="form-actions" style="margin-top:1rem"><button class="btn btn-primary btn-sm" type="submit">Save parent access</button></div><div class="result" id="pa-res" role="status"></div></form></div>';
-    bind();
+    host.innerHTML = '<div class="level-tabs rw-tabs" role="tablist" aria-label="People">' + [["students", "Student register (" + pupils.length + ")"], ["parents", "Parent accounts (" + parents.length + ")"]].map(function (x) { return '<button type="button" role="tab" data-s="' + x[0] + '" aria-selected="' + (x[0] === sub) + '">' + esc(x[1]) + "</button>"; }).join("") + '</div><div id="pp-body"></div>';
+    $$(".rw-tabs button", host).forEach(function (b) { b.addEventListener("click", function () { sub = b.getAttribute("data-s"); render(); }); });
+    (sub === "students" ? students : parentsView)($("#pp-body"));
   }
-  function bind() {
-    $$("tr[data-p]", host).forEach(function (tr) {
-      function open() { editPupil(tr.getAttribute("data-p")); }
-      tr.addEventListener("click", open); tr.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); } });
-    });
-    $("#pe-add").addEventListener("submit", function (e) {
-      e.preventDefault(); var r = $("#pe-res"), fn = $("#pe-fn").value.trim(), ln = $("#pe-ln").value.trim();
-      if (!fn || !ln) { note(r, false, "Enter the first and last name."); return; }
-      var c = classes.filter(function (x) { return x.id === $("#pe-cl").value; })[0]; if (!c) { note(r, false, "Choose the class. Add classes under Results and reports."); return; }
-      A.api("POST", "/rest/v1/students", { first_name: fn, last_name: ln, class_id: c.id, level: c.level, sex: $("#pe-sx").value || null }, { Prefer: "return=minimal" }).then(load, function (er) { note(r, false, nice(er.message)); });
-    });
+
+  function students(body) {
+    A.register(body, { pupils: pupils, classes: classes, reload: load, edit: editPupil });
+    var enrolled = {}; pupils.forEach(function (p) { if (p.admission_id) enrolled[p.admission_id] = 1; });
+    var open = admissions.filter(function (a) { return !enrolled[a.id] && a.status !== "declined" && a.status !== "withdrawn"; }), card = document.createElement("div");
+    card.className = "form-card"; card.style.marginTop = "1.6rem";
+    card.innerHTML = '<h3 style="font-size:1.05rem;margin:0 0 .4rem">Enrol from an application</h3><p class="count-line">Creates the pupil from the application details. Choose it only after the school has offered the place.</p><form id="pe-enrol" novalidate><div class="fld"><label for="pe-ad">Application</label><select class="select-lg" id="pe-ad"><option value="">Choose...</option>' +
+      open.map(function (a) { return '<option value="' + esc(a.id) + '">' + esc(a.reference + " · " + a.child_first_name + " " + a.child_last_name + " (" + a.status.replace(/_/g, " ") + ")") + "</option>"; }).join("") + '</select></div><div class="form-actions" style="margin-top:1rem"><button class="btn btn-primary btn-sm" type="submit">Enrol pupil</button></div><div class="result" id="pe-res2" role="status"></div></form>';
+    body.appendChild(card);
     $("#pe-enrol").addEventListener("submit", function (e) {
-      e.preventDefault(); var r = $("#pe-res2"), id = $("#pe-ad").value; if (!id) { note(r, false, "Choose an application."); return; }
+      e.preventDefault(); var r = $("#pe-res2"), id = $("#pe-ad").value; if (!id) return note(r, false, "Choose an application.");
       A.api("POST", "/rest/v1/rpc/admin_enrol_from_admission", { p_admission: id }).then(load, function (er) { note(r, false, nice(er.message)); });
     });
+  }
+
+  function parentsView(body) {
+    var active = pupils.filter(function (p) { return p.active; });
+    body.innerHTML = (parents.length ? '<div class="ad-table-wrap"><table class="ad-table"><thead><tr><th>Parent</th><th>Linked children</th><th>Link a child</th><th>Access</th></tr></thead><tbody>' + parents.map(function (p) {
+      return "<tr><td><strong>" + esc(p.full_name || "") + "</strong><br><small>" + esc(p.email) + "</small></td><td>" +
+        (p.children.length ? p.children.map(function (c) { return '<span class="chip-pill">' + esc(c.name) + ' <button type="button" class="x-mini" data-unlink="' + esc(c.link) + '" aria-label="Unlink ' + esc(c.name) + '">&times;</button></span>'; }).join(" ") : "<em>None</em>") + "</td>" +
+        '<td><div class="pe-link"><select class="select-lg" data-sel="' + esc(p.user_id) + '" aria-label="Child to link to ' + esc(p.email) + '"><option value="">Choose...</option>' + active.map(function (s) { return '<option value="' + esc(s.id) + '">' + esc(s.first_name + " " + s.last_name + (s.admission_no ? " · " + s.admission_no : "")) + "</option>"; }).join("") + "</select>" + btn("link", p.user_id, "Link") + "</div></td><td>" + (p.active ? "Active " : "Disabled ") + '<button type="button" class="btn btn-soft btn-sm" data-act="' + esc(p.user_id) + '" data-v="' + (p.active ? 0 : 1) + '">' + (p.active ? "Disable" : "Enable") + "</button></td></tr>";
+    }).join("") + "</tbody></table></div>" : '<div class="empty"><p>No parent accounts yet.</p></div>') +
+      '<div class="form-card" style="margin-top:1.4rem"><h3 style="font-size:1.05rem;margin:0 0 .3rem">Give a parent access</h3><p class="count-line">Create the user in Supabase first (Authentication, Add user, with a password you give the parent), then add their email here and link their children.</p>' +
+      '<form id="pa-add" novalidate><div class="form-grid"><div class="fld"><label for="pa-em">Email</label><input class="input" id="pa-em" type="email"></div><div class="fld"><label for="pa-nm">Full name</label><input class="input" id="pa-nm" maxlength="100"></div></div><div class="form-actions" style="margin-top:1rem"><button class="btn btn-primary btn-sm" type="submit">Save parent access</button></div><div class="result" id="pa-res" role="status"></div></form></div>';
     $("#pa-add").addEventListener("submit", function (e) {
-      e.preventDefault(); var r = $("#pa-res"), em = $("#pa-em").value.trim();
-      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em)) { note(r, false, "Enter a valid email."); return; }
+      e.preventDefault(); var r = $("#pa-res"), em = $("#pa-em").value.trim(); if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em)) return note(r, false, "Enter a valid email.");
       A.api("POST", "/rest/v1/rpc/admin_add_parent", { p_email: em, p_name: $("#pa-nm").value }).then(load, function (er) { note(r, false, nice(er.message)); });
     });
-    $$("[data-link]", host).forEach(function (b) { b.addEventListener("click", function () {
-      var uid = b.getAttribute("data-link"), sel = host.querySelector('[data-sel="' + uid + '"]'); if (!sel.value) { sel.focus(); return; }
+    $$("[data-link]", body).forEach(function (b) { b.addEventListener("click", function () {
+      var uid = b.getAttribute("data-link"), sel = body.querySelector('[data-sel="' + uid + '"]'); if (!sel.value) return sel.focus();
       b.disabled = true; A.api("POST", "/rest/v1/parent_students", { parent_user_id: uid, student_id: sel.value }, { Prefer: "return=minimal" }).then(load, function (er) { b.disabled = false; alert(nice(er.message)); });
     }); });
-    $$("[data-unlink]", host).forEach(function (b) { b.addEventListener("click", function () {
-      if (!confirm("Remove this child from the parent's account?")) return;
-      A.api("DELETE", "/rest/v1/parent_students?id=eq." + encodeURIComponent(b.getAttribute("data-unlink"))).then(load, function (er) { alert(nice(er.message)); });
+    $$("[data-unlink]", body).forEach(function (b) { b.addEventListener("click", function () {
+      if (confirm("Remove this child from the parent's account?")) A.api("DELETE", "/rest/v1/parent_students?id=eq." + encodeURIComponent(b.getAttribute("data-unlink"))).then(load, function (er) { alert(nice(er.message)); });
     }); });
-    $$("[data-act]", host).forEach(function (b) { b.addEventListener("click", function () {
+    $$("[data-act]", body).forEach(function (b) { b.addEventListener("click", function () {
       A.api("PATCH", "/rest/v1/parents?user_id=eq." + encodeURIComponent(b.getAttribute("data-act")), { active: b.getAttribute("data-v") === "1" }, { Prefer: "return=minimal" }).then(load, function (er) { alert(nice(er.message)); });
     }); });
   }
+
   function editPupil(id) {
     var p = pupils.filter(function (x) { return x.id === id; })[0]; if (!p) return;
     $("#ad-dlg-t").textContent = "Edit pupil: " + p.first_name + " " + p.last_name;
     $("#ad-dlg-b").innerHTML = '<form id="pu-form" novalidate><div class="form-grid"><div class="fld"><label for="pu-fn">First name</label><input class="input" id="pu-fn" maxlength="60" value="' + esc(p.first_name) + '"></div><div class="fld"><label for="pu-ln">Last name</label><input class="input" id="pu-ln" maxlength="60" value="' + esc(p.last_name) + '"></div>' +
-      '<div class="fld"><label for="pu-cl">Class</label><select class="select-lg" id="pu-cl">' + clsOpts(p.class_id, "Not assigned") + '</select></div><div class="fld"><label for="pu-sx">Sex</label><select class="select-lg" id="pu-sx">' + sexOpts(p.sex) + '</select></div><div class="fld full"><p class="count-line">Student ID: <strong>' + esc(p.student_code || "") + '</strong>. Parents use it with the name to look up a released result.</p></div>' +
-      '<div class="fld full"><label class="check"><input type="checkbox" id="pu-act"' + (p.active ? " checked" : "") + '> Active pupil (inactive pupils are hidden from parents)</label></div></div>' +
-      '<div class="form-actions" style="margin-top:1rem"><button class="btn btn-primary" type="submit">Save</button></div><div class="result" id="pu-res" role="status"></div></form>';
+      '<div class="fld"><label for="pu-no">Admission number</label><input class="input" id="pu-no" maxlength="40" value="' + esc(p.admission_no || "") + '"></div><div class="fld"><label for="pu-sx">Sex</label><select class="select-lg" id="pu-sx">' + sexOpts(p.sex) + '</select></div>' +
+      '<div class="fld full"><label for="pu-cl">Class</label><select class="select-lg" id="pu-cl">' + clsOpts(p.class_id, "Not assigned") + '</select></div><div class="fld full"><p class="count-line">Student ID: <strong>' + esc(p.student_code || "") + '</strong>. Parents use it with the name to look up a released result.</p></div>' +
+      '<div class="fld full"><label class="check"><input type="checkbox" id="pu-act"' + (p.active ? " checked" : "") + '> Active pupil (inactive pupils are hidden from parents and class lists)</label></div></div><div class="form-actions" style="margin-top:1rem"><button class="btn btn-primary" type="submit">Save</button></div><div class="result" id="pu-res" role="status"></div></form>';
     $("#pu-form").addEventListener("submit", function (e) {
-      e.preventDefault(); var r = $("#pu-res"), fn = $("#pu-fn").value.trim(), ln = $("#pu-ln").value.trim(); if (!fn || !ln) { note(r, false, "Enter the first and last name."); return; }
-      A.api("PATCH", "/rest/v1/students?id=eq." + encodeURIComponent(id), { first_name: fn, last_name: ln, class_id: $("#pu-cl").value || null, sex: $("#pu-sx").value || null, active: $("#pu-act").checked }, { Prefer: "return=minimal" })
+      e.preventDefault(); var r = $("#pu-res"), fn = $("#pu-fn").value.trim(), ln = $("#pu-ln").value.trim(); if (!fn || !ln) return note(r, false, "Enter the first and last name.");
+      var c = classes.filter(function (x) { return x.id === $("#pu-cl").value; })[0];
+      A.api("PATCH", "/rest/v1/students?id=eq." + encodeURIComponent(id), { first_name: fn, last_name: ln, admission_no: $("#pu-no").value.trim() || null, class_id: c ? c.id : null, level: c ? c.level : p.level, sex: $("#pu-sx").value || null, active: $("#pu-act").checked }, { Prefer: "return=minimal" })
         .then(function () { $("#ad-dlg").close(); load(); }, function (er) { note(r, false, nice(er.message)); });
     });
     U.openDialog($("#ad-dlg"));

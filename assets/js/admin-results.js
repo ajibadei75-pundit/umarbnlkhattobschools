@@ -31,15 +31,23 @@
   function teach(h) {
     host = h; ws = null;
     host.innerHTML = '<p class="count-line">Loading...</p>';
-    rpc("my_classes").then(function (list) {
-      listCache = list;
-      host.innerHTML = '<h2 class="sec-title" style="font-size:1.2rem">My classes</h2>' + (list.length ? '<div class="two-col">' + list.map(function (c) {
-        var role = c.access === "class_teacher" ? "Class teacher" : c.access === "admin" ? "Administrator" : "Subject teacher";
-        return '<article class="panel"><h3>' + esc(c.name) + '</h3><p class="post-meta"><span class="cat-badge">' + esc(role) + "</span> " + pill(c.status) + " · " + c.students + ' pupils</p>' +
+    Promise.all([rpc("my_classes"), rpc("my_teaching").catch(function () { return []; })]).then(function (rs) {
+      var list = rs[0], T = {}; (rs[1] || []).forEach(function (t) { T[t.id] = t; }); listCache = list;
+      var ct = list.filter(function (c) { return c.access === "class_teacher"; }), sj = list.filter(function (c) { return c.access !== "admin" && (T[c.id] || { own: [] }).own.length; });
+      var who = ct.length && sj.length ? "Class teacher and subject teacher" : ct.length ? "Class teacher" : sj.length ? "Subject teacher" : "";
+      host.innerHTML = '<h2 class="sec-title" style="font-size:1.2rem">My classes</h2>' + (who ? '<p class="count-line"><span class="cat-badge">' + who + "</span> " + (ct.length ? "You manage the register, pupil details and comments of " + ct.map(function (c) { return esc(c.name); }).join(", ") + ". " : "") + (sj.length ? "You enter scores only for the subjects assigned to you." : "") + "</p>" : "") + (list.length ? '<div class="two-col">' + list.map(function (c) {
+        var t = T[c.id] || { own: [], subjects: [] }, isCt = c.access === "class_teacher", adm = c.access === "admin", mine = isCt && c.section === "basic" ? t.subjects : t.own;
+        var badges = (adm ? '<span class="cat-badge">Administrator</span> ' : "") + (isCt ? '<span class="cat-badge">Class teacher</span> ' : "") + (t.own.length && !adm ? '<span class="cat-badge">Subject teacher</span> ' : "");
+        return '<article class="panel"><h3>' + esc(c.name) + '</h3><p class="post-meta">' + badges + pill(c.status) + " · " + c.students + ' pupils</p>' +
+          (mine.length && !adm ? '<p class="count-line" style="margin:.3rem 0 0">' + (isCt && c.section === "basic" ? "All subjects: " : "Your subjects: ") + mine.map(function (x) { return esc(x.name); }).join(", ") + "</p>" : "") +
           (c.status === "rejected" && c.note ? '<p class="notice is-info" style="margin:.6rem 0"><span>Sent back: ' + esc(c.note) + "</span></p>" : "") +
-          '<p style="margin-top:.8rem"><button type="button" class="btn btn-primary btn-sm" data-open="' + esc(c.id) + '">Open class</button></p></article>';
+          '<p style="margin-top:.8rem;display:flex;gap:.4rem;flex-wrap:wrap"><button type="button" class="btn btn-primary btn-sm" data-open="' + esc(c.id) + '">Open class</button>' +
+          (isCt ? '<button type="button" class="btn btn-soft btn-sm" data-att="1">Attendance</button>' : "") +
+          (mine.length ? '<button type="button" class="btn btn-soft btn-sm" data-note="' + esc(c.id) + '">Lesson note</button>' : "") + "</p></article>";
       }).join("") + "</div>" : '<div class="empty"><h3>No class assigned yet</h3><p>An administrator will assign your class or subjects. Then they appear here.</p></div>');
       $$("[data-open]", host).forEach(function (b) { b.addEventListener("click", function () { openClass(host, b.getAttribute("data-open"), function () { teach(host); }); }); });
+      $$("[data-att]", host).forEach(function (b) { b.addEventListener("click", function () { var t = $('#ad-tabs [data-tab="attendance"]'); if (t) t.click(); }); });
+      $$("[data-note]", host).forEach(function (b) { b.addEventListener("click", function () { if (A.aiPrefill) A.aiPrefill({ cls: b.getAttribute("data-note") }); var t = $('#ad-tabs [data-tab="aitools"]'); if (t) t.click(); }); });
     }, function (e) { host.innerHTML = '<div class="notice"><span>' + esc(nice(e)) + "</span></div>"; });
   }
 
@@ -61,7 +69,7 @@
   function isBasic() { return ws.class.section === "basic"; }
   function canDetails() { return ws.access === "admin" || ws.access === "class_teacher"; }
   function draw() {
-    var tabs = [["scores", "Scores"]]; if (canDetails()) { tabs.push(["pupils", "Pupils and comments"]); tabs.push(["submit", "Preview and submit"]); }
+    var tabs = [["scores", "Scores"], ["register", "Class register"]]; if (canDetails()) { tabs.push(["pupils", "Pupils and comments"]); tabs.push(["submit", "Preview and submit"]); }
     host.innerHTML = '<div class="rw-top"><button type="button" class="btn btn-soft btn-sm" id="rw-back">&larr; Back</button><div><h2 style="font-size:1.35rem;margin:0">' + esc(ws.class.name) + '</h2><p class="count-line" style="margin:.1rem 0 0">' +
       pill(ws.approval.status) + " · " + ws.students.length + " pupils · " + (isBasic() ? "Nursery and Primary sheet" : "J.S.S. sheet") + "</p></div></div>" +
       (ws.locked ? '<p class="notice is-info"><span data-icon="alert"></span><span>This class is approved and locked. Scores and details can no longer be changed. Ask an administrator to reopen it.</span></p>' : "") +
@@ -70,7 +78,23 @@
     U.injectIcons && U.injectIcons(host);
     $("#rw-back").addEventListener("click", function () { if (dirtyCount() && !confirm("You have unsaved scores. Leave without saving?")) return; dirty = {}; back(); });
     $$(".rw-tabs button", host).forEach(function (b) { b.addEventListener("click", function () { tab = b.getAttribute("data-t"); draw(); }); });
-    ({ scores: scores, pupils: pupils, submit: submit })[tab]();
+    ({ scores: scores, register: register, pupils: pupils, submit: submit })[tab]();
+  }
+
+  /* ---------- class register: every pupil with admission number ---------- */
+  function register() {
+    var body = $("#rw-body"), L = ws.students;
+    if (!L.length) { body.innerHTML = '<div class="empty"><h3>No pupils in this class yet</h3><p>An administrator adds pupils under Pupils and parents, Student register.</p></div>'; return; }
+    var m = L.filter(function (x) { return x.sex === "male"; }).length, f = L.filter(function (x) { return x.sex === "female"; }).length;
+    body.innerHTML = '<div class="reg-head"><p class="count-line" style="margin:0">' + L.length + " pupils" + (m || f ? " · " + m + " boys · " + f + " girls" : "") + '</p><div class="form-actions"><button type="button" class="btn btn-soft btn-sm" id="cr-csv">Export CSV</button><button type="button" class="btn btn-soft btn-sm" id="cr-prt">Print</button></div></div>' +
+      '<div class="ad-table-wrap"><table class="ad-table reg-table"><thead><tr><th>No.</th><th>Admission no.</th><th>Name</th><th>Sex</th><th>Student ID</th></tr></thead><tbody>' + L.map(function (x, i) {
+        return "<tr><td>" + (i + 1) + "</td><td>" + (x.admission_no ? "<strong>" + esc(x.admission_no) + "</strong>" : "<small>Not set</small>") + "</td><td>" + esc(x.last_name + " " + x.first_name) + "</td><td>" + (x.sex === "male" ? "M" : x.sex === "female" ? "F" : "") + "</td><td>" + esc(x.student_code || "") + "</td></tr>";
+      }).join("") + "</tbody></table></div>";
+    var cell = function (v) { v = String(v == null ? "" : v); return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; };
+    $("#cr-csv").addEventListener("click", function () { U.download("class-register-" + ws.class.name.replace(/\W+/g, "-").toLowerCase() + ".csv", "text/csv;charset=utf-8", "\ufeff" + ["Admission no,Surname,First name,Sex,Student ID"].concat(L.map(function (x) { return [x.admission_no, x.last_name, x.first_name, x.sex, x.student_code].map(cell).join(","); })).join("\r\n")); });
+    $("#cr-prt").addEventListener("click", function () {
+      U.printHTML('<div class="ai-print"><div class="ai-head"><div><h2>Umar BN L Khattob Nursery &amp; Primary School</h2><p>Class register: ' + esc(ws.class.name) + (ws.teacher && ws.teacher.name ? " · Class teacher: " + esc(ws.teacher.name) : "") + '</p></div></div><table class="reg-print"><thead><tr><th>No.</th><th>Admission no.</th><th>Name</th><th>Sex</th></tr></thead><tbody>' + L.map(function (x, i) { return "<tr><td>" + (i + 1) + "</td><td>" + esc(x.admission_no || "") + "</td><td>" + esc(x.last_name + " " + x.first_name) + "</td><td>" + (x.sex === "male" ? "M" : x.sex === "female" ? "F" : "") + "</td></tr>"; }).join("") + "</tbody></table></div>");
+    });
   }
 
   /* ---------- scores ---------- */

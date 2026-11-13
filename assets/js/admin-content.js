@@ -273,11 +273,37 @@
         if (!ok) { res.className = "result show bad"; res.textContent = "Please fix the highlighted fields."; return; }
         var value = { address: $("#cs-addr").value.trim(), phones: $("#cs-phones").value.split("\n").map(function (x) { return x.trim(); }).filter(Boolean), hours: hours, email: em, whatsapp: wa, mapUrl: mp };
         $("#cs-save").disabled = true;
-        A.api("POST", "/rest/v1/site_settings?on_conflict=key", { key: "contact", value: value }, { Prefer: "resolution=merge-duplicates,return=minimal" }).then(function () {
-          res.className = "result show ok"; res.textContent = "Saved. The website will show these details within a minute for new visitors.";
+        A.api("POST", "/rest/v1/site_settings?on_conflict=key", { key: "contact", value: value }, { Prefer: "resolution=merge-duplicates,return=representation" }).then(function (rows) {
+          if (!rows || !rows.length) throw new Error("Nothing was saved. Your account may not be allowed to change school details.");
+          res.className = "result show ok"; res.textContent = "Saved and confirmed. The website will show these details within a minute for new visitors.";
         }, function (err) { res.className = "result show bad"; res.textContent = A.nice(err.message); }).then(function () { $("#cs-save").disabled = false; });
       });
+      sessionForm(body);
     }, function (e) { body.innerHTML = '<div class="notice"><span>' + esc(A.nice(e.message)) + "</span></div>"; });
+  }
+
+  /* ---------- academic session dates (shown on the website header and home page) ---------- */
+  function sessionForm(body) {
+    A.api("GET", "/rest/v1/site_settings?select=value&key=eq.session").then(function (r) {
+      var v = (r && r[0] && r[0].value) || {}, T = ["First", "Second", "Third"], box = document.createElement("div");
+      function row(n) { var x = (v.terms || []).filter(function (q) { return q.term === n; })[0] || {};
+        return '<div class="ses-row"><b>' + n + ' term</b><div class="fld"><label for="ss-s-' + n + '">Begins</label><input class="input" type="date" id="ss-s-' + n + '" value="' + esc(x.start || "") + '"></div><div class="fld"><label for="ss-e-' + n + '">Ends</label><input class="input" type="date" id="ss-e-' + n + '" value="' + esc(x.end || "") + '"></div></div>'; }
+      box.innerHTML = '<div class="form-card" style="margin-top:1.5rem"><h2 style="font-size:1.2rem;margin:0 0 .3rem">Academic session</h2><p class="count-line">Shows the current session and term on the website, with start date, end date and progress. Leave a term empty if it is not set yet.</p><form id="ss-form" novalidate><div class="fld"><label for="ss-label">Session (for example 2026/2027)</label><input class="input" id="ss-label" maxlength="20" value="' + esc(v.label || "") + '"></div><div class="ses-rows">' + T.map(row).join("") + '</div><div class="form-actions" style="margin-top:1.2rem"><button type="submit" class="btn btn-primary" id="ss-save">Save session dates</button></div><div class="result" id="ss-res" role="status" tabindex="-1"></div></form></div>';
+      body.appendChild(box);
+      $("#ss-form").addEventListener("submit", function (e) {
+        e.preventDefault(); var res = $("#ss-res"), label = $("#ss-label").value.trim(), terms = [], err = "", last = "";
+        T.forEach(function (n) { var s = $("#ss-s-" + n).value, en = $("#ss-e-" + n).value; if (!s && !en) return;
+          if (!s || !en) err = n + " term needs both dates."; else if (en < s) err = n + " term ends before it begins."; else if (last && s <= last) err = n + " term must begin after the previous term ends."; else { terms.push({ term: n, start: s, end: en }); last = en; } });
+        if (!label) err = err || "Enter the session, for example 2026/2027.";
+        if (!terms.length) err = err || "Enter the dates for at least one term.";
+        if (err) { res.className = "result show bad"; res.textContent = err; return; }
+        $("#ss-save").disabled = true;
+        A.api("POST", "/rest/v1/site_settings?on_conflict=key", { key: "session", value: { label: label, terms: terms } }, { Prefer: "resolution=merge-duplicates,return=representation" }).then(function (rows) {
+          if (!rows || !rows.length) throw new Error("Nothing was saved. Your account may not be allowed to change the session.");
+          res.className = "result show ok"; res.textContent = "Saved and confirmed. The website shows the new dates within a minute.";
+        }, function (er) { res.className = "result show bad"; res.textContent = A.nice(er.message); }).then(function () { $("#ss-save").disabled = false; });
+      });
+    });
   }
 
   A.content = function (h) { host = h; if (!$("#cm-kinds", h)) shell(); show(kind); };

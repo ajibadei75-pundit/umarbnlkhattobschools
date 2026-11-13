@@ -266,6 +266,7 @@
   }
   function initNav() {
     var nav = $("#nav"), tg = $("#menu-toggle");
+    if (!nav || !tg) return;   /* portal pages have no public menu */
     tg.addEventListener("click", function () { var o = nav.classList.toggle("open"); tg.setAttribute("aria-expanded", String(o)); });
     nav.addEventListener("click", function (e) {
       var a = e.target.closest("a");
@@ -292,19 +293,18 @@
     function upd() {
       busy = false;
       var y = window.scrollY || 0, max = document.documentElement.scrollHeight - window.innerHeight;
-      h.classList.toggle("scrolled", y > 8);
-      top.classList.toggle("show", y > 700);
+      if (h) h.classList.toggle("scrolled", y > 8);
+      if (top) top.classList.toggle("show", y > 700);
       if (bar) bar.style.transform = "scaleX(" + (max > 0 ? Math.min(y / max, 1) : 0) + ")";
     }
     window.addEventListener("scroll", function () { if (!busy) { busy = true; requestAnimationFrame(upd); } }, { passive: true });
-    top.innerHTML = icon("up", 2);
-    top.addEventListener("click", function () { window.scrollTo({ top: 0, behavior: reduceMotion ? "auto" : "smooth" }); });
+    if (top) { top.innerHTML = icon("up", 2); top.addEventListener("click", function () { window.scrollTo({ top: 0, behavior: reduceMotion ? "auto" : "smooth" }); }); }
     upd();
   }
 
   /* ---------------- Search ---------------- */
   var SEARCH_PAGES = [["pg.admissions", "admissions.html"], ["pg.track", "track.html"], ["pg.about", "about.html"], ["pg.academics", "academics.html"], ["pg.news", "news.html"], ["pg.events", "events.html"], ["pg.contact", "contact.html"], ["nav.learning", "learning.html"]];
-  var SEARCH_HOME = [["nav.admin", "index.html#admin", "sec.admin.d"], ["nav.teacher", "index.html#teacher", "sec.teacher.d"], ["nav.parent", "parent.html", "sec.parent.d"], ["nav.learning", "index.html#learning", "sec.learning.d"]];
+  var SEARCH_HOME = [];
   function searchIndex() {
     var out = [];
     SEARCH_PAGES.forEach(function (p) { out.push({ g: "pages", title: t(p[0]), text: t(p[0] + ".d"), url: p[1] }); });
@@ -373,12 +373,23 @@
     init: function (fn) { inits.push(fn); }, onLang: function (fn) { langCbs.push(fn); },
     refresh: function () { setLang(root.lang); }, setLang: setLang, applyI18n: applyI18n
   };
+  /* Phone / desktop view: on a small screen the visitor can switch to the full desktop layout and back. */
+  function initViewMode() {
+    var b = document.getElementById("view-mode"), mv = document.querySelector('meta[name="viewport"]'); if (!b || !mv) return;
+    var small = Math.min(screen.width || 9999, window.outerWidth || 9999) < 900, mode = "";
+    try { mode = localStorage.getItem("ubk-view") || ""; } catch (e) {}
+    if (!small && mode !== "desktop") return;
+    function paint() { mv.setAttribute("content", mode === "desktop" ? "width=1100" : "width=device-width, initial-scale=1, viewport-fit=cover"); b.textContent = mode === "desktop" ? "Switch to phone view" : "Switch to desktop view"; }
+    b.hidden = false; paint();
+    b.addEventListener("click", function () { mode = mode === "desktop" ? "" : "desktop"; try { localStorage.setItem("ubk-view", mode); } catch (e) {} paint(); });
+  }
   document.addEventListener("DOMContentLoaded", function () {
     injectIcons();
     buildThemeSwitchers();
     $$(".lang-select").forEach(function (s) { s.addEventListener("change", function () { setLang(s.value); }); });
     var img = $(".brand-logo");
     if (img) img.addEventListener("error", function () { img.onerror = null; img.src = "assets/img/logo-fallback.svg"; });
+    initViewMode();
     initNav(); initScroll(); initReveal(); initSearch();
     inits.forEach(function (fn) { fn(); });
     setLang(root.getAttribute("lang") || "en");
