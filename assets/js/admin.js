@@ -161,7 +161,7 @@
     if (can(["super_admin", "school_admin"])) tabs.push(["pins", "Student PINs"]);
     if (can(CMS)) tabs.push(["media", "Gallery and leadership"]);
     if (can(["super_admin", "school_admin"])) tabs.push(["resources", "School resources"]);
-    if (can(["super_admin", "school_admin"])) tabs.push(["learning", "Learning Centre"]);
+    if (can(["super_admin", "school_admin", "teacher"])) tabs.push(["learning", "Learning Centre"]);
     if (can(["super_admin", "school_admin", "bursar", "finance_officer", "viewer"])) tabs.push(["bursar", "Fees and receipts"]);
     if (can(["super_admin", "school_admin", "bursar", "finance_officer"])) tabs.push(["payments", "Parent payment proofs"]);
     if (can(["super_admin", "school_admin", "bursar", "finance_officer"])) tabs.push(["backup", "Backup and import"]);
