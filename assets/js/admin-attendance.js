@@ -3,12 +3,12 @@
   "use strict";
   var U = window.UBK, $ = U.$, $$ = U.$$, esc = U.esc, A = window.UBK_ADMIN;
   if (!A) return;
-  var host, day = today(), mine = [], rows = [], cls = "", mode = "";
+  var hol = "", host, day = today(), mine = [], rows = [], cls = "", mode = "";
   function today() { var d = new Date(); return d.getFullYear() + "-" + ("0" + (d.getMonth() + 1)).slice(-2) + "-" + ("0" + d.getDate()).slice(-2); }
   function addDays(s, n) { var d = new Date(s + "T12:00:00"); d.setDate(d.getDate() + n); return d.getFullYear() + "-" + ("0" + (d.getMonth() + 1)).slice(-2) + "-" + ("0" + d.getDate()).slice(-2); }
   function rpc(n, b) { return A.api("POST", "/rest/v1/rpc/" + n, b || {}); }
   function say(ok, m) { var el = $("#at-res"); if (el) { el.className = "result show " + (ok ? "ok" : "bad"); el.textContent = m; } }
-  function nice(e) { var m = e && e.message || ""; return /too_old/.test(m) ? "Attendance older than 7 days can only be changed by an administrator." : /weekend/.test(m) ? "Weekends are not school days." : /invalid:day/.test(m) ? "You cannot mark a future date." : A.nice(m); }
+  function nice(e) { var m = e && e.message || ""; return /holiday/.test(m) ? "That day is a school holiday. No register is taken." : /too_old/.test(m) ? "Attendance older than 7 days can only be changed by an administrator." : /weekend/.test(m) ? "Weekends are not school days." : /invalid:day/.test(m) ? "You cannot mark a future date." : A.nice(m); }
   function isStaffView() { return A.can(["super_admin", "school_admin", "viewer"]); }
   function isAdm() { return A.can(["super_admin", "school_admin"]); }
   function nm(d) { return new Date(d + "T12:00:00").toLocaleDateString(undefined, { weekday: "long", day: "numeric", month: "long", year: "numeric" }); }
@@ -17,6 +17,7 @@
     host = h; host.innerHTML = '<p class="count-line">Loading...</p>';
     mode = isStaffView() ? (mode || "overview") : "mark";
     if (mode === "overview") return overview();
+    if (mode === "holidays" && isAdm()) return holidays();
     if (isAdm()) {
       A.api("GET", "/rest/v1/classes?select=id,name&order=section.desc,sort.asc,name.asc").then(function (c) { mine = c || []; if (!cls || !mine.some(function (x) { return x.id === cls; })) cls = (mine[0] || {}).id || ""; sheet(); }, function (e) { host.innerHTML = '<div class="notice"><span>' + esc(nice(e)) + "</span></div>"; });
       return;
@@ -28,7 +29,7 @@
     }, function (e) { host.innerHTML = '<div class="notice"><span>' + esc(nice(e)) + "</span></div>"; });
   }
   function head(title) {
-    var tabs = isAdm() ? '<div class="activity-tabs" style="margin:.2rem 0 1rem"><button type="button" class="btn btn-sm ' + (mode === "overview" ? "btn-primary" : "btn-soft") + '" data-m="overview">Overview</button> <button type="button" class="btn btn-sm ' + (mode === "mark" ? "btn-primary" : "btn-soft") + '" data-m="mark">Mark or correct a register</button></div>' : "";
+    var tabs = isAdm() ? '<div class="activity-tabs" style="margin:.2rem 0 1rem"><button type="button" class="btn btn-sm ' + (mode === "overview" ? "btn-primary" : "btn-soft") + '" data-m="overview">Overview</button> <button type="button" class="btn btn-sm ' + (mode === "mark" ? "btn-primary" : "btn-soft") + '" data-m="mark">Mark or correct a register</button> <button type="button" class="btn btn-sm ' + (mode === "holidays" ? "btn-primary" : "btn-soft") + '" data-m="holidays">Holidays</button></div>' : "";
     return '<h2 class="sec-title" style="font-size:1.2rem">' + title + "</h2>" + tabs;
   }
   function bindTabs() { $$("[data-m]", host).forEach(function (b) { b.addEventListener("click", function () { mode = b.getAttribute("data-m"); open(host); }); }); }
@@ -47,10 +48,12 @@
   function load() {
     var b = $("#at-body"); if (!cls) { b.innerHTML = '<div class="empty"><h3>No class to mark</h3><p>You are not set as the class teacher of any class yet. An administrator can assign you.</p></div>'; return; }
     b.innerHTML = '<p class="count-line">Loading...</p>';
-    rpc("attendance_sheet", { p_class: cls, p_day: day }).then(function (r) { rows = r || []; draw(); }, function (e) { b.innerHTML = '<div class="notice"><span>' + esc(nice(e)) + "</span></div>"; });
+    Promise.all([rpc("attendance_sheet", { p_class: cls, p_day: day }), rpc("holiday_on", { p_day: day })]).then(function (x) { rows = x[0] || []; hol = x[1] || ""; draw(); }, function (e) { b.innerHTML = '<div class="notice"><span>' + esc(nice(e)) + "</span></div>"; });
   }
   function draw() {
     var b = $("#at-body"), marked = rows.some(function (r) { return r.status; });
+    if (hol) { b.innerHTML = '<div class="notice is-info"><span data-icon="alert"></span><span><b>' + esc(hol) + "</b> - " + esc(nm(day)) + " is a school holiday, so no register is taken. It is not counted in the times school opened.</span></div>"; return; }
+    if (new Date(day + "T12:00:00").getDay() % 6 === 0) { b.innerHTML = '<div class="notice is-info"><span data-icon="alert"></span><span>' + esc(nm(day)) + " is a weekend. School days are Monday to Friday.</span></div>"; return; }
     b.innerHTML = '<p class="count-line">' + esc(nm(day)) + " · " + rows.length + " pupils · " + (marked ? "already marked (you can change it)" : "not marked yet") + "</p>" +
       (rows.length ? '<div class="form-actions" style="margin-bottom:.6rem"><button type="button" class="btn btn-soft btn-sm" id="at-all">Tick everyone present</button><button type="button" class="btn btn-soft btn-sm" id="at-none">Clear all</button></div><div class="at-list">' + rows.map(function (r, i) {
         var st = r.status || "present";
@@ -67,6 +70,26 @@
       rpc("save_attendance", { p_class: cls, p_day: day, p_rows: out }).then(function (n) { say(true, "Saved for " + n + " pupils."); load(); }, function (e) { say(false, nice(e)); }).then(function () { var s = $("#at-save"); if (s) s.disabled = false; });
     });
     sum();
+  }
+
+  /* ---------- holidays (admin) ---------- */
+  function holidays() {
+    host.innerHTML = head("School holidays") + '<p class="count-line">Add public holidays and breaks. Each weekday inside a holiday is taken off the times school opened (2 for each day), and no register can be marked on it. Saturdays and Sundays are already left out.</p>' +
+      '<form id="ho-form" class="toolbar" novalidate><div class="fld"><label for="ho-n">Name</label><input class="input" id="ho-n" maxlength="80" placeholder="Eid-el-Fitr"></div><div class="fld"><label for="ho-a">From</label><input class="input" id="ho-a" type="date"></div><div class="fld"><label for="ho-z">To (same day if one day)</label><input class="input" id="ho-z" type="date"></div><button class="btn btn-primary btn-sm" type="submit">Add holiday</button></form><p class="result" id="at-res" role="status"></p><div id="ho-list"><p class="count-line">Loading...</p></div>';
+    bindTabs();
+    function list() {
+      A.api("GET", "/rest/v1/school_holidays?select=id,name,start_date,end_date&order=start_date.desc").then(function (r) {
+        function wd(a, z) { var n = 0, d = a; while (d <= z && n < 400) { var w = new Date(d + "T12:00:00").getDay(); if (w && w < 6) n++; d = addDays(d, 1); } return n; }
+        $("#ho-list").innerHTML = (r || []).length ? '<div class="ad-table-wrap"><table class="ad-table"><thead><tr><th>Holiday</th><th>From</th><th>To</th><th>School days lost</th><th></th></tr></thead><tbody>' + r.map(function (h) { var n = wd(h.start_date, h.end_date); return '<tr><td><b>' + esc(h.name) + "</b></td><td>" + esc(h.start_date) + "</td><td>" + esc(h.end_date) + "</td><td>" + n + " (" + n * 2 + " times)</td><td><button type=\"button\" class=\"btn btn-soft btn-sm\" data-hd=\"" + esc(h.id) + '">Delete</button></td></tr>'; }).join("") + "</tbody></table></div>" : '<div class="empty"><h3>No holidays yet</h3><p>Add the first one above.</p></div>';
+        $$("[data-hd]", host).forEach(function (b) { b.addEventListener("click", function () { if (!confirm("Delete this holiday?")) return; A.api("DELETE", "/rest/v1/school_holidays?id=eq." + encodeURIComponent(b.getAttribute("data-hd"))).then(list, function (e) { say(false, nice(e)); }); }); });
+      }, function (e) { $("#ho-list").innerHTML = '<div class="notice"><span>' + esc(nice(e)) + "</span></div>"; });
+    }
+    $("#ho-form").addEventListener("submit", function (e) {
+      e.preventDefault(); var n = $("#ho-n").value.trim(), a = $("#ho-a").value, z = $("#ho-z").value || a;
+      if (n.length < 2 || !a) return say(false, "Write the holiday name and the first day."); if (z < a) return say(false, "The last day cannot be before the first day.");
+      A.api("POST", "/rest/v1/school_holidays", { name: n, start_date: a, end_date: z }, { Prefer: "return=minimal" }).then(function () { $("#ho-n").value = ""; $("#ho-a").value = ""; $("#ho-z").value = ""; say(true, "Holiday added."); list(); }, function (er) { say(false, nice(er)); });
+    });
+    list();
   }
 
   /* ---------- overview (admin, viewer) ---------- */
