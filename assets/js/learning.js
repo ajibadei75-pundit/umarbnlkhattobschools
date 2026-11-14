@@ -5,7 +5,7 @@
   "use strict";
   var U = window.UBK, $ = U.$, $$ = U.$$, t = U.t, esc = U.esc, icon = U.icon;
   var B = (window.UBK_SITE || {}).backend || {};
-  var items = [], loaded = false, failed = false, kind = "all", level = "all", q = "";
+  var stamp = null, items = [], loaded = false, failed = false, kind = "all", level = "all", q = "";
   var KINDS = ["all", "video", "material", "quiz", "game"], LEVELS = ["all", "nursery", "primary", "secondary", "arabic"];
 
   /* ---------- built-in games ---------- */
@@ -33,9 +33,12 @@
   function pick(o) { if (!o) return ""; var l = document.documentElement.lang; return o[l] || o.en || ""; }
   function load() {
     if (!B.url || !B.key) { loaded = true; failed = true; return render(); }
-    fetch(B.url + "/rest/v1/learning_items?status=eq.published&select=id,kind,title,description,levels,subject,url,file_path,quiz&order=created_at.desc&limit=500", { headers: { apikey: B.key } })
+    return fetch(B.url + "/rest/v1/learning_items?status=eq.published&select=id,kind,title,description,levels,subject,url,file_path,quiz&order=created_at.desc&limit=500&_=" + Date.now(), { headers: { apikey: B.key }, cache: "no-store" })
       .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
-      .then(function (rows) { items = rows; loaded = true; render(); }, function () { loaded = true; failed = true; render(); });
+      .then(function (rows) { items = rows; loaded = true; failed = false; stamp = new Date(); try { localStorage.setItem("ubk-lc", JSON.stringify({ at: stamp.toISOString(), rows: rows })); } catch (e) { /* ignore */ } render(); }, function () {
+        var c = null; try { c = JSON.parse(localStorage.getItem("ubk-lc") || "null"); } catch (e) { /* ignore */ }
+        loaded = true; if (c && c.rows && !items.length) { items = c.rows; stamp = new Date(c.at); failed = false; } else if (!items.length) failed = true; render();
+      });
   }
   function fileUrl(p) { return B.url + "/storage/v1/object/public/learning/" + p.split("/").map(encodeURIComponent).join("/"); }
 
@@ -68,14 +71,14 @@
     $$("[data-go]").forEach(function (b) { b.addEventListener("click", function () { var x = list.filter(function (y) { return y.id === b.getAttribute("data-go"); })[0]; if (x) openItem(x); }); });
     var real = items.length;
     $("#lc-empty").hidden = list.length > 0 || failed;
-    $("#lc-count").textContent = failed ? t("lc.err") : list.length ? t("lc.count", { n: list.length, m: base.length }) : "";
+    $("#lc-count").textContent = failed ? t("lc.err") : list.length ? t("lc.count", { n: list.length, m: base.length }) + (stamp ? " · " + stamp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "") : "";
     if (loaded && !real && !failed && kind !== "game" && kind === "all") $("#lc-empty").hidden = true;
   }
 
   /* ---------- dialogs ---------- */
   function dlg(title, meta, html) { $("#lc-dt").textContent = title; $("#lc-dm").innerHTML = meta || ""; $("#lc-db").innerHTML = html; U.openDialog($("#lc-dlg")); }
   function embed(url) {
-    var m = /^https:\/\/(?:www\.)?youtube\.com\/watch\?v=([\w-]{6,20})/.exec(url) || /^https:\/\/youtu\.be\/([\w-]{6,20})/.exec(url), v = /^https:\/\/(?:www\.)?vimeo\.com\/(\d+)/.exec(url);
+    var m = /^https:\/\/(?:www\.|m\.)?youtube\.com\/watch\?(?:[^#\s]*&)?v=([\w-]{6,20})/.exec(url) || /^https:\/\/(?:www\.|m\.)?youtube\.com\/(?:shorts|embed|live)\/([\w-]{6,20})/.exec(url) || /^https:\/\/youtu\.be\/([\w-]{6,20})/.exec(url), v = /^https:\/\/(?:www\.)?vimeo\.com\/(\d+)/.exec(url);
     if (m) return "https://www.youtube-nocookie.com/embed/" + m[1];
     if (v) return "https://player.vimeo.com/video/" + v[1];
     return "";
@@ -124,6 +127,10 @@
 
   U.init(function () {
     $("#lc-q").addEventListener("input", function () { q = this.value.trim().toLowerCase(); render(); });
+    var rb = document.createElement("button"); rb.type = "button"; rb.className = "btn btn-soft btn-sm"; rb.id = "lc-refresh"; rb.textContent = "\u21BB"; rb.setAttribute("aria-label", "Refresh"); rb.title = "Refresh";
+    $("#lc-count").parentNode.insertBefore(rb, $("#lc-count").nextSibling); rb.addEventListener("click", function () { rb.disabled = true; load().then(function () { rb.disabled = false; }); });
     render(); load(); U.onLang(render);
+    document.addEventListener("visibilitychange", function () { if (!document.hidden) load(); }); window.addEventListener("online", load); window.addEventListener("focus", load);
+    setInterval(function () { if (!document.hidden) load(); }, 60000);
   });
 })();

@@ -70,7 +70,7 @@
     var h = '<h2 class="sec-title" style="font-size:1.2rem">My timetable</h2>';
     h += mine.length ? table(mine, false) : '<div class="empty"><h3>No lessons yet</h3><p>The administrator has not put you on the timetable yet.</p></div>';
     Object.keys(byC).forEach(function (c) { if (byC[c].some(function (x) { return !x.mine; })) h += '<h3 style="font-size:1.05rem;margin:1.4rem 0 .4rem">' + esc(c) + " class timetable</h3>" + table(byC[c], true); });
-    host.innerHTML = h + '<p class="count-line" style="margin-top:1rem">Your own lessons are shaded. You will get a flash reminder before each lesson while this page is open.</p>';
+    host.innerHTML = h + '<p class="count-line" style="margin-top:1rem">Your own lessons are shaded. You will get a flash reminder 5 minutes before each lesson while this page is open.</p>';
   }
 
   /* ---------------- weekly topics (administrator) ---------------- */
@@ -216,10 +216,10 @@
     function go() {
       var mins = now.getHours() * 60 + now.getMinutes(), key = ymd(now), first = {};
       ttRows.filter(function (x) { return x.day === d && x.start; }).forEach(function (x) {
-        var m = x.start.split(":"), at = +m[0] * 60 + +m[1], diff = at - mins, id = "ubk-rem-" + key + "-" + x.id; if (diff < -10 || diff > 10) return;
+        var m = x.start.split(":"), at = +m[0] * 60 + +m[1], diff = at - mins, id = "ubk-rem-" + key + "-" + x.id; if (diff < -2 || diff > 5) return;
         var cT = myCls.indexOf(x.class_id) > -1, sT = x.mine; if (!sT && !cT) return;
         try { if (localStorage.getItem(id)) return; localStorage.setItem(id, "1"); } catch (e) { /* ignore */ }
-        if (sT) toast((diff > 0 ? "In " + diff + " min: " : "Now: ") + x.subject + " · " + x.class, "Period " + x.period + " at " + x.start + ". Open Lesson notes to check your plan.", "lessons");
+        if (sT) toast((diff > 0 ? "In " + diff + " min: " : "Starting now: ") + x.subject + " · " + x.class, "Period " + x.period + " at " + x.start + ". Open Lesson notes to check your plan.", "lessons");
         else if (cT && !first[x.class_id] && ttRows.filter(function (y) { return y.class_id === x.class_id && y.day === d && y.start < x.start; }).length === 0) { first[x.class_id] = 1; toast("Class reminder: " + x.class, "School day starts at " + x.start + ". Please take the attendance register.", "attendance"); }
       });
     }
