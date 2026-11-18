@@ -23,6 +23,24 @@
     var t = $("#rw-toast"); if (!t) { t = document.createElement("div"); t.id = "rw-toast"; t.setAttribute("role", "status"); t.setAttribute("aria-live", "polite"); document.body.appendChild(t); }
     t.className = "rw-toast " + (ok === false ? "bad" : "ok") + " show"; t.textContent = msg; clearTimeout(t._h); t._h = setTimeout(function () { t.classList.remove("show"); }, 5200);
   }
+  function toJpeg(file) {
+    return new Promise(function (ok, no) {
+      if (!file || !/^image\//.test(file.type)) return no(new Error("Choose a photo (JPG or PNG)."));
+      var img = new Image(), url = URL.createObjectURL(file);
+      img.onload = function () {
+        var W = 180, H = 240, c = document.createElement("canvas"); c.width = W; c.height = H; var g = c.getContext("2d"); g.fillStyle = "#fff"; g.fillRect(0, 0, W, H);
+        var r = Math.max(W / img.width, H / img.height), w = img.width * r, h = img.height * r; g.drawImage(img, (W - w) / 2, (H - h) * 0.3, w, h); URL.revokeObjectURL(url);
+        var q = .82, d = c.toDataURL("image/jpeg", q); while (d.length > 60000 && q > .35) { q -= .1; d = c.toDataURL("image/jpeg", q); }
+        d.length > 65000 ? no(new Error("That photo is too large.")) : ok(d);
+      };
+      img.onerror = function () { URL.revokeObjectURL(url); no(new Error("Could not read that photo.")); }; img.src = url;
+    });
+  }
+  function rolesLine() {
+    var parts = []; if (ws.access === "admin") parts.push("Administrator"); if (ws.is_class_teacher) parts.push("Class teacher");
+    var names = (ws.subjects || []).filter(function (x) { return (ws.assigned || []).indexOf(x.id) > -1; }).map(function (x) { return x.name; });
+    if (names.length) parts.push("Subject teacher: " + names.join(", ")); return parts.length ? "Your role here: " + parts.join(" and ") : "";
+  }
   function nameOf(s) { return s.first_name + " " + s.last_name; }
   function dirtyCount() { var n = 0; Object.keys(dirty).forEach(function (k) { n += Object.keys(dirty[k]).length; }); return n; }
   window.addEventListener("beforeunload", function (e) { if (dirtyCount()) { e.preventDefault(); e.returnValue = ""; } });
@@ -71,7 +89,7 @@
   function draw() {
     var tabs = [["scores", "Scores"], ["register", "Class register"]]; if (canDetails()) { tabs.push(["pupils", "Pupils and comments"]); tabs.push(["submit", "Preview and submit"]); }
     host.innerHTML = '<div class="rw-top"><button type="button" class="btn btn-soft btn-sm" id="rw-back">&larr; Back</button><div><h2 style="font-size:1.35rem;margin:0">' + esc(ws.class.name) + '</h2><p class="count-line" style="margin:.1rem 0 0">' +
-      pill(ws.approval.status) + " · " + ws.students.length + " pupils · " + (isBasic() ? "Nursery and Primary sheet" : "J.S.S. sheet") + "</p></div></div>" +
+      pill(ws.approval.status) + " · " + ws.students.length + " pupils · " + (isBasic() ? "Nursery and Primary sheet" : "J.S.S. sheet") + "</p>" + (rolesLine() ? '<p class="count-line" style="margin:.2rem 0 0"><b>' + esc(rolesLine()) + "</b></p>" : "") + "</div></div>" +
       (ws.locked ? '<p class="notice is-info"><span data-icon="alert"></span><span>This class is approved and locked. Scores and details can no longer be changed. Ask an administrator to reopen it.</span></p>' : "") +
       (ws.approval.status === "rejected" && ws.approval.note ? '<p class="notice"><span data-icon="alert"></span><span>Sent back by the administrator: ' + esc(ws.approval.note) + "</span></p>" : "") +
       '<div class="level-tabs rw-tabs" role="tablist" aria-label="Class sections">' + tabs.map(function (x) { return '<button type="button" role="tab" data-t="' + x[0] + '" aria-selected="' + (x[0] === tab) + '">' + esc(x[1]) + "</button>"; }).join("") + '</div><div id="rw-body"></div>';
@@ -208,8 +226,13 @@
       '<div class="rw-meter" role="img" aria-label="' + complete + " of " + ws.students.length + ' pupils complete"><span style="width:' + Math.round(complete / ws.students.length * 100) + '%"></span></div><p class="count-line">' + complete + " of " + ws.students.length + " pupils complete (✓ = scores and details done)</p>" +
       '<form id="pu-form" novalidate><div class="form-grid"><div class="fld"><label for="pf-tp">No. of times present</label><input class="input" id="pf-tp" type="number" min="0" max="400" value="' + (s.time_present == null ? "" : s.time_present) + '"' + disabled + '></div>' +
       '<div class="fld"><label for="pf-wt">Weight (e.g. 21 kg)</label><input class="input" id="pf-wt" maxlength="12" value="' + esc(s.weight || "") + '"' + disabled + '></div><div class="fld"><label for="pf-ht">Height (e.g. 118 cm)</label><input class="input" id="pf-ht" maxlength="12" value="' + esc(s.height || "") + '"' + disabled + '></div></div>' +
+      '<div class="pf-photo"><span class="pf-img">' + (s.photo ? '<img src="' + esc(s.photo) + '" alt="Photo of ' + esc(nameOf(s)) + '">' : "<em>No photo</em>") + '</span><div><label for="pf-pic"><b>Passport photo for the report sheet</b></label><input class="input" id="pf-pic" type="file" accept="image/*"' + disabled + '><p class="count-line" style="margin:.3rem 0">Face the camera, plain background. It is shrunk to a small passport size automatically.</p>' + (s.photo && !ws.locked ? '<button type="button" class="btn btn-soft btn-sm" id="pf-rm">Remove photo</button>' : "") + '<p class="result" id="pf-pres" role="status"></p></div></div>' +
       ratings + '<div class="fld" style="margin-top:1rem"><label for="pf-cm">Class teacher\'s comment</label><textarea class="textarea" id="pf-cm" maxlength="300" style="min-height:90px"' + disabled + ">" + esc(s.class_teacher_remark || "") + '</textarea></div>' +
       '<div class="form-actions" style="margin-top:1rem"><button type="submit" class="btn btn-primary"' + disabled + '>Save details</button><button type="button" class="btn btn-soft" id="pu-prev-sheet">Preview this sheet</button></div><div class="result" id="pf-res" role="status"></div></form>';
+    var pic = $("#pf-pic"), rm = $("#pf-rm"), pres = $("#pf-pres");
+    function setPhoto(v, msg) { return rpc("set_student_photo", { p_student: s.id, p_photo: v }).then(function () { s.photo = v; toast(msg, true); pupils(); }, function (er) { pres.className = "result show bad"; pres.textContent = /invalid:photo/.test(er.message || "") ? "That photo is not allowed." : nice(er); }); }
+    if (pic) pic.addEventListener("change", function () { var f = pic.files[0]; if (!f) return; pres.className = "result show ok"; pres.textContent = "Saving photo..."; toJpeg(f).then(function (d) { return setPhoto(d, "Photo saved."); }, function (er) { pres.className = "result show bad"; pres.textContent = er.message; }); });
+    if (rm) rm.addEventListener("click", function () { setPhoto(null, "Photo removed."); });
     $("#pu-sel").addEventListener("change", function () { pupilId = this.value; pupils(); });
     $("#pu-prev").addEventListener("click", function () { pupilId = ws.students[i - 1].id; pupils(); });
     var fl = $("#pu-fill"); if (fl) fl.addEventListener("click", function () {

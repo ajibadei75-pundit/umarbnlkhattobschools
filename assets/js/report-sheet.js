@@ -4,7 +4,7 @@
    every sheet fits one A4 page with a 10 mm margin. Stamp and head's signature areas are left blank on purpose. */
 (function () {
   "use strict";
-  var U = window.UBK, esc = U.esc;
+  var U = window.UBK, esc = U.esc, $$ = U.$$;
   var B = (window.UBK_SITE || {}).backend || {};
 
   /* ---------- maths ---------- */
@@ -80,7 +80,7 @@
     var g = cell("Name of pupil", fullName(st), "c4") + cell("Admission no.", st.admission_no || st.student_code, "c2") + cell("Gender", sexOf(st), "c2") +
       cell("Class", p.class.name, "c2") + cell("No. in class", p.class.size, "c2") + cell("Session", S.session_label, "c2") + cell("Next term begins", shortDate(S.next_term_begins), "c2") +
       cell("School opened", open == null ? "" : open + " days", "c2") + cell("Days present", pres == null ? "" : pres, "c2") + cell("Days absent", absent == null ? "" : absent, "c2") + cell("Attendance", pct == null ? "" : pct + "%", "c2");
-    var photo = '<div class="rs-photo">' + (st.photo_url ? '<img src="' + esc(st.photo_url) + '" alt="">' : "<span>PASSPORT<br>PHOTO</span>") + "</div>";
+    var photo = '<div class="rs-photo">' + ((st.photo || st.photo_url) ? '<img src="' + esc(st.photo || st.photo_url) + '" alt="">' : "<span>PASSPORT<br>PHOTO</span>") + "</div>";
     return '<div class="rs-idrow"><div class="rs-info">' + g + "</div>" + photo + "</div>";
   }
   function summary(c) {
@@ -155,7 +155,8 @@
     var totals = {};
     (ws.scores || []).forEach(function (s) { if (s.exam == null) return; (totals[s.subject_id] = totals[s.subject_id] || []).push((+s.first_ca || 0) + (+s.second_ca || 0) + (+s.exam || 0)); });
     var st = (ws.students || []).filter(function (x) { return x.id === studentId; })[0];
-    return { settings: ws.settings, grading: ws.grading, class: { id: ws.class.id, name: ws.class.name, level: ws.class.level, section: ws.class.section, size: (ws.students || []).length },
+    var byS = {}; (ws.scores || []).forEach(function (x) { if (x.exam == null) return; byS[x.student_id] = (byS[x.student_id] || 0) + (+x.first_ca || 0) + (+x.second_ca || 0) + (+x.exam || 0); });
+    return { overall_totals: Object.keys(byS).map(function (k) { return byS[k]; }), settings: ws.settings, grading: ws.grading, class: { id: ws.class.id, name: ws.class.name, level: ws.class.level, section: ws.class.section, size: (ws.students || []).length },
       student: st, subjects: ws.subjects, scores: (ws.scores || []).filter(function (s) { return s.student_id === studentId; }), class_totals: totals, teacher: ws.teacher };
   }
 
@@ -196,23 +197,49 @@
   var FONTS = "https://fonts.googleapis.com/css2?family=Lato:wght@400;600;700;800&family=Montserrat:wght@600;700;800&family=Noto+Naskh+Arabic:wght@600;700&display=swap";
 
   var cssDone = false;
-  function ensureCss() { if (cssDone) return; cssDone = true; var s = document.createElement("style"); s.textContent = CSS.replace('@@LOGO@@', logoSrc()); document.head.appendChild(s); }
+  var MCSS = ".rm-wrap{font-family:Poppins,Arial,sans-serif;color:#1d1a33}.rm-card{background:#fff;border:1px solid #ddd6f2;border-top:5px solid #302078;border-radius:16px;padding:14px;margin-bottom:14px}" +
+    ".rm-head{display:flex;gap:12px;align-items:center}.rm-pic{flex:none;width:76px;height:96px;border-radius:12px;overflow:hidden;background:#ece8f7;color:#302078;display:grid;place-items:center;font:700 26px Montserrat,Arial,sans-serif;border:2px solid #D5A43B}.rm-pic img{width:100%;height:100%;object-fit:cover;display:block}" +
+    ".rm-head h3{margin:0 0 2px;font-size:1.1rem;color:#302078;overflow-wrap:anywhere}.rm-head p{margin:0;font-size:.82rem;color:#5a5680}" +
+    ".rm-tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:12px 0}.rm-tile{background:#f6f4fc;border-radius:10px;padding:8px 4px;text-align:center;min-width:0}.rm-tile span{display:block;font-size:.66rem;color:#5a5680}.rm-tile b{font-size:1.05rem;color:#302078}.rm-tile.hi{background:#302078}.rm-tile.hi span{color:#e4dcff}.rm-tile.hi b{color:#fff}" +
+    ".rm-subj{list-style:none;margin:0;padding:0}.rm-subj li{display:grid;grid-template-columns:1fr auto;gap:2px 10px;padding:9px 0;border-bottom:1px solid #eee9f8;align-items:center}.rm-subj b{font-size:.92rem}.rm-subj small{color:#5a5680;font-size:.74rem;grid-column:1}.rm-subj .rm-t{grid-row:1/3;grid-column:2;text-align:right;font-size:1.15rem;font-weight:700;color:#302078}.rm-subj .rm-t i{margin-left:6px;vertical-align:middle}" +
+    ".rm-note{margin-top:12px;background:#faf7ee;border-left:4px solid #D5A43B;border-radius:8px;padding:9px 11px;font-size:.88rem}.rm-note span{display:block;font-size:.7rem;font-weight:700;color:#7a5a00;letter-spacing:.04em;margin-bottom:2px}" +
+    ".rm-bar{display:flex;gap:8px;margin:0 0 10px}.rm-bar button{flex:1;border:1px solid #302078;background:#fff;color:#302078;border-radius:10px;padding:9px;font:600 .85rem Poppins,Arial,sans-serif}.rm-bar button[aria-pressed=true]{background:#302078;color:#fff}" +
+    ".rm-g{display:inline-block;min-width:22px;text-align:center;padding:2px 5px;border-radius:6px;color:#fff;background:#777;font:700 .72rem Montserrat,Arial,sans-serif}.rm-g.ga{background:#16A6A3}.rm-g.gb{background:#2f7fd0}.rm-g.gc{background:#D5A43B}.rm-g.gd{background:#d9822b}.rm-g.gf{background:#A52D35}";
+  function mobile(p) {
+    var c = compute(p), st = p.student, S = p.settings || {}, open = num(S.times_school_opened), pres = num(st.time_present), pct = open && pres != null ? Math.min(100, Math.round(pres / open * 100)) : null;
+    var nm = fullName(st), ini = (nm.match(/\b\w/g) || []).slice(0, 2).join("").toUpperCase(), basic = (p.class || {}).section === "basic";
+    var tile = function (l, v, hi) { return '<div class="rm-tile' + (hi ? " hi" : "") + '"><span>' + esc(l) + "</span><b>" + (v == null || v === "" ? "—" : v) + "</b></div>"; };
+    return '<article class="rm-card"><div class="rm-head"><div class="rm-pic">' + ((st.photo || st.photo_url) ? '<img src="' + esc(st.photo || st.photo_url) + '" alt="">' : esc(ini)) + "</div><div><h3>" + esc(nm) + "</h3><p>" + esc(p.class.name) + " · " + esc(st.admission_no || st.student_code || "") + "</p><p>" + esc([S.session_label, S.term && S.term + " term"].filter(Boolean).join(" · ")) + "</p></div></div>" +
+      '<div class="rm-tiles">' + tile("Average", c.pct == null ? null : Math.round(c.pct) + "%", 1) + tile("Grade", c.grade ? esc(c.grade) : null, 1) + tile("Position", c.opos ? ord(c.opos) : null) + tile("Attendance", pct == null ? null : pct + "%") + "</div>" +
+      '<ul class="rm-subj">' + c.rows.filter(function (r) { return r.total != null; }).map(function (r) {
+        var ca = basic ? fmt((r.ca1 || 0) + (r.ca2 || 0)) : fmt(r.ca1) + " + " + fmt(r.ca2);
+        return "<li><b>" + esc(r.name) + "</b><small>CA " + ca + " · Exam " + fmt(r.exam) + (r.avg != null ? " · Class avg " + fmt(r.avg) : "") + (r.position ? " · " + ord(r.position) : "") + '</small><span class="rm-t">' + fmt(r.total) + '<i class="rm-g ' + gcls(r.grade) + '">' + esc(r.grade || "") + "</i></span></li>";
+      }).join("") + "</ul>" + (c.rows.some(function (r) { return r.total != null; }) ? "" : '<p class="rm-note">No scores have been entered yet.</p>') +
+      (st.class_teacher_remark ? '<div class="rm-note"><span>CLASS TEACHER\'S COMMENT</span>' + esc(st.class_teacher_remark) + "</div>" : "") +
+      (S.next_term_begins ? '<div class="rm-note"><span>NEXT TERM BEGINS</span>' + esc(longDate(S.next_term_begins)) + "</div>" : "") + "</article>";
+  }
+  function ensureCss() { if (cssDone) return; cssDone = true; var s = document.createElement("style"); s.textContent = CSS.replace('@@LOGO@@', logoSrc()) + MCSS; document.head.appendChild(s); }
 
   /* On-screen preview, scaled to fit the width of the container. opts.watermark draws a diagonal watermark with the pupil's name and ID. */
   function mount(host, payloads, opts) {
     ensureCss(); opts = opts || {};
     var list = Array.isArray(payloads) ? payloads : [payloads];
-    host.innerHTML = '<div class="rs-stage"><div class="rs-scale">' + list.map(function (p) {
+    host.innerHTML = '<div class="rm-bar" hidden><button type="button" data-v="m" aria-pressed="true">Easy view</button><button type="button" data-v="s" aria-pressed="false">Full sheet</button></div><div class="rm-wrap" hidden>' + list.map(mobile).join("") + '</div><div class="rs-stage"><div class="rs-scale">' + list.map(function (p) {
       return sheet(p).replace(/<\/section>$/, (opts.watermark ? wm(p) : "") + "</section>");
     }).join("") + "</div></div>";
-    var stage = host.firstChild, inner = stage.firstChild;
+    var bar = host.children[0], mwrap = host.children[1], stage = host.children[2], inner = stage.firstChild, pick = null;
+    $$("button", bar).forEach(function (b) { b.addEventListener("click", function () { pick = b.getAttribute("data-v"); fit(); }); });
     function fit() {
-      var w = 210 * 3.7795, k = Math.min(1, host.clientWidth / w);
+      var narrow = host.clientWidth < 640, mode = narrow ? (pick || "m") : "s";
+      bar.hidden = !narrow; mwrap.hidden = mode !== "m"; stage.hidden = mode === "m";
+      $$("button", bar).forEach(function (b) { b.setAttribute("aria-pressed", String(b.getAttribute("data-v") === mode)); });
+      if (mode === "m") return;
+      var cs = getComputedStyle(host), avail = host.clientWidth - (parseFloat(cs.paddingLeft) || 0) - (parseFloat(cs.paddingRight) || 0), w = 210 * 3.7795, k = Math.min(1, avail / w);
       inner.style.transform = "scale(" + k + ")"; stage.style.height = (inner.scrollHeight * k) + "px";
     }
     fit(); if (window.ResizeObserver) new ResizeObserver(fit).observe(host); else window.addEventListener("resize", fit);
     if (opts.guard) {
-      stage.classList.add("rs-guarded");
+      stage.classList.add("rs-guarded"); mwrap.style.userSelect = "none"; mwrap.style.webkitUserSelect = "none"; mwrap.addEventListener("contextmenu", function (e) { e.preventDefault(); });
       stage.addEventListener("contextmenu", function (e) { e.preventDefault(); });
       stage.addEventListener("dragstart", function (e) { e.preventDefault(); });
       stage.style.userSelect = "none"; stage.style.webkitUserSelect = "none";

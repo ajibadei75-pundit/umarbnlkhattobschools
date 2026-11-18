@@ -1279,3 +1279,9 @@ body { font-size: .95rem; line-height: 1.6; }
   #home.hero .hero-copy .lead{font-size:1rem}
   #home .hero-copy .cta-row .btn{flex:1;text-align:center}
 }
+
+/* ---- pupil photo upload ---- */
+.pf-photo{display:flex;gap:1rem;align-items:flex-start;margin-top:1rem;padding:.8rem;border:1px dashed #cfc7ea;border-radius:12px;background:#faf9fe}
+.pf-img{flex:none;width:84px;height:108px;border-radius:10px;overflow:hidden;background:#ece8f7;display:grid;place-items:center;border:2px solid #D5A43B;color:#5a5680;font-size:.75rem}
+.pf-img img{width:100%;height:100%;object-fit:cover}.pf-photo>div{min-width:0;flex:1}
+@media(max-width:420px){.pf-photo{flex-direction:column}}
