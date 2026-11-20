@@ -34,6 +34,7 @@
     host.innerHTML = '<h2 class="sec-title" style="font-size:1.2rem">Timetable</h2><p class="count-line">Pick a class, choose the subject for each period, then save. Teachers see their own periods and get a reminder before each one.</p>' +
       '<div class="toolbar"><select class="select-lg" id="tt-cl" style="width:auto" aria-label="Class">' + tt.classes.map(function (c) { return '<option value="' + esc(c.id) + '"' + (c.id === tt.cls ? " selected" : "") + ">" + esc(c.name) + "</option>"; }).join("") + '</select></div><div id="tt-body"><p class="count-line">Loading...</p></div>';
     $("#tt-cl").addEventListener("change", function () { tt.cls = this.value; loadTT(); }); loadTT();
+    if (A.ttai) { var ai = document.createElement("section"); ai.style.marginTop = "2rem"; host.appendChild(ai); A.ttai.admin(ai); }
   }
   function loadTT() {
     if (!tt.cls) { $("#tt-body").innerHTML = '<div class="empty"><p>No classes yet.</p></div>'; return; }
@@ -58,6 +59,7 @@
     }, function (e) { $("#tt-body").innerHTML = '<div class="notice"><span>' + esc(A.nice(e.message)) + "</span></div>"; });
   }
   function teacherTT(host, rows) {
+    var rv = document.createElement("div"); setTimeout(function () { if (A.ttai) A.ttai.teacher(host); }, 0);
     var today = new Date().getDay(), byC = {};
     function table(list, who) {
       var ds = [1, 2, 3, 4, 5], ps = {}; list.forEach(function (x) { ps[x.period] = x.start; });
