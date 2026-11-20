@@ -395,3 +395,12 @@
     setLang(root.getAttribute("lang") || "en");
   });
 })();
+
+/* Footer link groups open on desktop and fold away on phones (tidier, less scrolling). */
+(function () {
+  var mq = window.matchMedia ? window.matchMedia("(min-width: 641px)") : null;
+  function sync() { var open = !mq || mq.matches; document.querySelectorAll(".ft-col").forEach(function (d) { if (open) d.setAttribute("open", ""); else if (!d.hasAttribute("data-user")) d.removeAttribute("open"); }); }
+  function init() { sync(); document.querySelectorAll(".ft-col").forEach(function (d) { d.addEventListener("toggle", function () { d.setAttribute("data-user", ""); }); }); var c = document.querySelector("#footer-contact"); var cd = c && c.closest(".ft-col"); if (cd && mq && !mq.matches) cd.setAttribute("open", ""); }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init); else init();
+  if (mq && mq.addEventListener) mq.addEventListener("change", sync);
+})();

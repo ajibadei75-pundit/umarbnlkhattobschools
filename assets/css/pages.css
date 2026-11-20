@@ -1339,3 +1339,24 @@ body { font-size: .95rem; line-height: 1.6; }
 @media(max-width:760px){a[data-pt]{display:inline-flex;align-items:center;min-height:44px;padding:0 .6rem}a[data-id]{display:inline-flex;align-items:center;min-height:44px}}
 .sample-badge,.draft-badge{font-size:11.5px!important}
 @media(max-width:760px){.portal-footer a,footer a{display:inline-flex;align-items:center;min-height:44px}}
+
+/* Phone view: fewer repeats, shorter pages, details on their own pages */
+.ft-col>summary{list-style:none;cursor:default}.ft-col>summary::-webkit-details-marker{display:none}.ft-col>summary h3{margin:0}.hx-more{display:none}
+@media(min-width:641px){.ft-col>summary{pointer-events:none}}
+@media(max-width:640px){
+  .topbar{display:none}
+  .activity-tabs{display:none}
+  .hq-hi{display:none}
+  #offer .sec-lead{display:none}
+  .hx-offer .hx-card:nth-child(n+3){display:none}
+  .hx-more{display:block;text-align:center;margin-top:1rem}
+  #how .hx-steps p{display:none}.hx-steps{gap:.6rem}.hx-steps li{padding:.9rem 1rem}
+  #how .cta-row .btn-soft{display:none}
+  #updates .sec-lead{display:none}
+  #home-news li:nth-child(n+3),#home-events li:nth-child(n+3){display:none}
+  .hx-cta{display:none}
+  .site-footer .footer-brand p.footer-ar{display:none}
+  .ft-col>summary{cursor:pointer;display:flex;justify-content:space-between;align-items:center;min-height:48px;border-bottom:1px solid rgb(255 255 255/15%)}
+  .ft-col>summary::after{content:"+";font-size:1.4rem;color:#D5A43B}.ft-col[open]>summary::after{content:"\2212"}
+  .footer-grid{gap:.4rem}
+}
