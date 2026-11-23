@@ -44,6 +44,8 @@
   var ROOT = (function () { var s = document.currentScript; return s && s.src ? s.src.replace(/assets\/js\/[^\/]*$/, "") : ""; })(), stat = null, snapAt = null;
   function money(v) { return "₦" + Number(v || 0).toLocaleString("en-NG", { maximumFractionDigits: 2 }); }
   function stamp(iso) { try { var d = new Date(iso); return d.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" }) + ", " + d.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", hour12: true }); } catch (e) { return ""; } }
+  var finLink = null;
+  (function () { try { var B = (window.UBK_SITE || {}).backend || {}; if (!B.url) return; fetch(B.url + "/rest/v1/site_settings?select=value&key=eq.finance_link", { headers: { apikey: B.key } }).then(function (r) { return r.ok ? r.json() : []; }).then(function (r) { var v = r && r[0] && r[0].value; if (v && v.url && v.parents !== false && /^https?:\/\//i.test(v.url)) finLink = v; }).catch(function () {}); } catch (e) {} })();
   function keepIn() { try { return localStorage.getItem("ubk-parent-keep") === "1"; } catch (e) { return false; } }
   function saveSnap() { if (!keepIn() || !data) return; try { localStorage.setItem("ubk-parent-snap", JSON.stringify({ at: new Date().toISOString(), data: data, stat: stat })); } catch (e) { /* storage full */ } }
   function readSnap() { try { return JSON.parse(localStorage.getItem("ubk-parent-snap") || "null"); } catch (e) { return null; } }
@@ -58,6 +60,7 @@
     h += '<div class="pp-blk"><h4>' + esc(t("pp.fees")) + (f ? " <small>" + esc(f.term + " " + t("pp.term") + ", " + f.session) + "</small>" : "") + "</h4>";
     if (f) { var bal = +f.balance, pc = +f.due > 0 ? Math.min(100, Math.round(100 * f.paid / f.due)) : 100; h += '<div class="pp-bar pay" role="img" aria-label="' + pc + '%"><i style="width:' + pc + '%"></i></div><div class="pp-fig"><div><span>' + esc(t("pp.fees.due")) + "</span><b>" + money(f.due) + "</b></div><div><span>" + esc(t("pp.fees.paid")) + "</span><b>" + money(f.paid) + '</b></div><div class="' + (bal > 0 ? "due" : "ok") + '"><span>' + esc(bal > 0 ? t("pp.fees.bal") : t("pp.fees.clear")) + "</span><b>" + money(Math.max(bal, 0)) + "</b></div></div>"; }
     else h += '<p class="count-line">' + esc(t("pp.fees.none")) + "</p>";
+    if (finLink) h += '<p class="pp-ext"><a class="btn btn-soft btn-sm" href="' + esc(finLink.url) + '" target="_blank" rel="noopener noreferrer">' + esc(finLink.label || "Bursary website") + " &#8599;</a>" + (finLink.note ? "<small>" + esc(finLink.note) + "</small>" : "") + "</p>";
     h += "</div>";
     h += '<div class="pp-blk"><h4>' + esc(t("pp.rec")) + "</h4>" + ((i.payments || []).length ? '<ul class="pp-rec">' + i.payments.slice(0, 5).map(function (p, n) {
       return "<li><div><b>" + money(p.amount) + "</b><small>" + esc(p.receipt_no) + " &middot; " + esc(stamp(p.created_at)) + '</small></div><button type="button" class="btn btn-soft btn-sm" data-rc="' + esc(k.id) + "|" + n + '">' + esc(t("pp.rec.print")) + "</button></li>";

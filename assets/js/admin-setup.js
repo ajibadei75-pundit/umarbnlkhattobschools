@@ -80,8 +80,8 @@
 
   /* ---------- classes and subjects ---------- */
   function classes(body) {
-    Promise.all([api("GET", "/rest/v1/classes?select=*&order=section.desc,sort.asc,name.asc"), api("GET", "/rest/v1/subjects?select=*&order=name.asc"), api("GET", "/rest/v1/class_subjects?select=class_id,subject_id&limit=5000")]).then(function (r) {
-      var cl = r[0], sb = r[1], cs = r[2], on = {};
+    Promise.all([api("GET", "/rest/v1/classes?select=*&order=section.desc,sort.asc,name.asc"), api("GET", "/rest/v1/subjects?select=*&order=name.asc"), api("GET", "/rest/v1/class_subjects?select=class_id,subject_id&limit=5000"), rpc("class_pupil_counts", {}).catch(function () { return {}; })]).then(function (r) {
+      var cl = r[0], sb = r[1], cs = r[2], cnt = r[3] || {}, on = {};
       cs.forEach(function (x) { on[x.class_id + "|" + x.subject_id] = 1; });
       body.innerHTML = '<div class="two-col"><article class="panel"><h3>Add a class</h3><form id="cl-add" novalidate><div class="form-grid"><div class="fld"><label for="cl-n">Class name</label><input class="input" id="cl-n" maxlength="40" placeholder="e.g. Primary 3 or JSS 1"></div>' +
         '<div class="fld"><label for="cl-l">Level</label><select class="select-lg" id="cl-l"><option value="nursery">Nursery</option><option value="primary">Primary</option><option value="secondary">J.S.S. (secondary)</option></select></div></div>' +
@@ -91,6 +91,7 @@
         '<h3 class="rw-h">Classes, subjects offered, and pupils</h3>' + (cl.length ? cl.map(function (c) {
           var mine = sb.filter(function (s) { return s.section === c.section; });
           return '<details class="panel" style="margin:.6rem 0"><summary><strong>' + esc(c.name) + "</strong> · " + esc(LV[c.level]) + " · " + (c.section === "secondary" ? "J.S.S. sheet" : "Nursery & Primary sheet") + "</summary>" +
+            '<div class="cl-manage"><p class="count-line" style="margin:0"><strong>' + ((cnt[c.id] || {}).active || 0) + ' active pupil(s)</strong>' + ((cnt[c.id] || {}).inactive ? " and " + cnt[c.id].inactive + " inactive" : "") + '. The report sheet shows this as the number in class.</p><div class="cl-row"><input class="input" data-rn="' + esc(c.id) + '" value="' + esc(c.name) + '" maxlength="40" aria-label="Class name"><button type="button" class="btn btn-soft btn-sm" data-rnb="' + esc(c.id) + '">Rename</button><button type="button" class="btn btn-danger btn-sm" data-dlc="' + esc(c.id) + '">Delete class</button></div></div>' +
             '<p class="count-line">Tick the subjects this class offers (' + (c.section === "secondary" ? "J.S.S." : "Nursery & Primary") + ' subjects only).</p><div class="rw-rates">' + mine.map(function (s) {
               return '<label class="check"><input type="checkbox" data-cs="' + esc(c.id) + '" value="' + esc(s.id) + '"' + (on[c.id + "|" + s.id] ? " checked" : "") + "> " + esc(s.name) + "</label>";
             }).join("") + '</div><h4 style="margin:1rem 0 .3rem">Add pupils</h4><p class="count-line">One pupil per line: Full name, Sex (M or F).</p><textarea class="input" rows="4" data-st="' + esc(c.id) + '" placeholder="Aisha Garba, F&#10;Musa Bello, M"></textarea>' +
@@ -120,6 +121,8 @@
           b.disabled = true; rpc("admin_add_students", { p_class: id, p_lines: ta.value }).then(function (j) { b.disabled = false; ta.value = ""; note(r, true, "Added " + ((j && j.added) != null ? j.added : "the") + " pupil(s)." + (j && j.skipped && j.skipped.length ? " Skipped: " + j.skipped.join("; ") : "")); }, function (er) { b.disabled = false; note(r, false, nice(er)); });
         });
       });
+      $$("[data-rnb]", body).forEach(function (b) { b.addEventListener("click", function () { var id = b.getAttribute("data-rnb"), r = $("#sl-res"); rpc("admin_rename_class", { p_class: id, p_name: $('[data-rn="' + id + '"]').value }).then(function () { results(host); }, function (er) { note(r, false, nice(er)); }); }); });
+      $$("[data-dlc]", body).forEach(function (b) { b.addEventListener("click", function () { var id = b.getAttribute("data-dlc"), r = $("#sl-res"); if (!confirm("Delete this class? Its subject list, timetable and teacher assignments are removed. A class that still has pupils cannot be deleted.")) return; rpc("admin_delete_class", { p_class: id }).then(function () { results(host); }, function (er) { note(r, false, nice(er)); }); }); });
       $$("[data-delsub]", body).forEach(function (b) {
         b.addEventListener("click", function () {
           if (!confirm("Remove this subject? It is also removed from every class.")) return;

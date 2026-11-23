@@ -41,19 +41,20 @@
     loadBase().then(draw, function (e) { host.innerHTML = '<div class="notice"><span>' + esc(A.nice(e.message)) + "</span></div>"; });
   }
   function draw() {
-    var tabs = [["record", "Record payment"], ["classes", "Class payments"], ["history", "Receipts"], ["fees", "Fee set-up"], ["import", "Import old records"]];
-    if (!canWrite()) tabs = tabs.filter(function (t) { return t[0] === "classes" || t[0] === "history"; });
+    var tabs = [["record", "Record payment"], ["classes", "Class payments"], ["history", "Receipts"], ["statement", "Pupil statement"], ["fees", "Fee set-up"], ["link", "Finance link"], ["import", "Import old records"]];
+    if (!isAdmin()) tabs = tabs.filter(function (t) { return t[0] !== "link"; });
+    if (!canWrite()) tabs = tabs.filter(function (t) { return t[0] === "classes" || t[0] === "history" || t[0] === "statement"; });
     if (!A.importView) tabs = tabs.filter(function (t) { return t[0] !== "import"; });
     if (tabs.every(function (t) { return t[0] !== view; })) view = tabs[0][0];
     host.innerHTML = '<h2 class="sec-title" style="font-size:1.2rem">Bursar: fees and receipts</h2>' +
       '<div class="toolbar"><label class="count-line" style="margin:0">Session <input class="input" id="bu-ses" value="' + esc(cfg.session) + '" style="width:8.5rem;display:inline-block" maxlength="20" aria-label="Session"></label>' +
       '<select class="select-lg" id="bu-term" style="width:auto" aria-label="Term">' + ["First", "Second", "Third"].map(function (t) { return '<option value="' + t + '"' + (t === cfg.term ? " selected" : "") + ">" + t + " term</option>"; }).join("") + "</select></div>" +
       '<div class="activity-tabs" role="tablist" style="margin:.4rem 0 1rem">' + tabs.map(function (t) { return '<button type="button" role="tab" class="btn btn-sm ' + (t[0] === view ? "btn-primary" : "btn-soft") + '" data-v="' + t[0] + '">' + t[1] + "</button>"; }).join(" ") + "</div>" +
-      '<div id="bu-body"></div><p class="result" id="bu-res" role="status"></p>';
+      '<div id="bu-sum" class="bu-sum" aria-live="polite"></div><p class="count-line bu-help" id="bu-help"></p><div id="bu-body"></div><p class="result" id="bu-res" role="status"></p>';
     $("#bu-ses").addEventListener("change", function () { cfg.session = this.value.trim() || defSession(); keep(); open(host); });
     $("#bu-term").addEventListener("change", function () { cfg.term = this.value; keep(); open(host); });
     $$("[data-v]", host).forEach(function (b) { b.addEventListener("click", function () { view = b.getAttribute("data-v"); draw(); }); });
-    ({ record: vRecord, classes: vClasses, history: vHistory, fees: vFees, import: vImport })[view]();
+    $("#bu-help").textContent = HELP[view] || ""; summary_(); linkBtn(); ({ record: vRecord, classes: vClasses, history: vHistory, statement: vStatement, fees: vFees, link: vLink, import: vImport })[view]();
   }
 
   /* ---------- record a payment ---------- */
@@ -224,5 +225,74 @@
     }, function (e) { b.innerHTML = '<div class="notice"><span>' + esc(A.nice(e.message)) + "</span></div>"; });
   }
   function vImport() { A.importView($("#bu-body"), { session: cfg.session, term: cfg.term }); }
+
+  /* ---------- explanations, totals, statement, finance link ---------- */
+  var HELP = {
+    record: "Record money a parent has paid. A receipt number is made for you and you can print it for the parent.",
+    classes: "See, for one class, what each pupil owes this term, what has been paid, and what is still outstanding.",
+    history: "Every receipt issued. Search, print again, correct a mistake, or void a receipt (a reason is required and kept).",
+    statement: "Search a pupil to see all fees due and payments made, term by term. Print it or save it as a spreadsheet for the parent.",
+    fees: "Set the fee items and amounts for each class and term. These decide what pupils owe.",
+    link: "Add a link to your school's bursary or payment information website. It shows as a button for the bursar, and for parents.",
+    import: "Bring in payment records you already have from before."
+  };
+  function summary_() {
+    var el = $("#bu-sum"); if (!el) return; el.innerHTML = "";
+    var q = "session=eq." + encodeURIComponent(cfg.session) + "&term=eq." + encodeURIComponent(cfg.term);
+    Promise.all([A.api("GET", "/rest/v1/payments?select=amount,paid_on,status&" + q + "&limit=5000"), A.api("GET", "/rest/v1/class_fees?select=class_id,amount&" + q), rpc("class_pupil_counts", {})]).then(function (r) {
+      var pays_ = (r[0] || []).filter(function (x) { return x.status === "valid"; }), got = pays_.reduce(function (s, x) { return s + Number(x.amount); }, 0), today = new Date().toISOString().slice(0, 10),
+        tod = pays_.filter(function (x) { return x.paid_on === today; }).reduce(function (s, x) { return s + Number(x.amount); }, 0), per = {}, cnt = r[2] || {};
+      (r[1] || []).forEach(function (f) { per[f.class_id] = (per[f.class_id] || 0) + Number(f.amount); });
+      var exp = Object.keys(per).reduce(function (s, c) { return s + per[c] * ((cnt[c] || {}).active || 0); }, 0), out = Math.max(0, exp - got), pct = exp ? Math.min(100, Math.round(got / exp * 100)) : 0;
+      function tile(l, v, s) { return '<div class="bu-t"><small>' + l + "</small><strong>" + v + "</strong>" + (s ? "<span>" + s + "</span>" : "") + "</div>"; }
+      el.innerHTML = tile("Collected", N(got), pays_.length + " receipt" + (pays_.length === 1 ? "" : "s")) + tile("Today", N(tod), "received today") + tile("Expected", N(exp), exp ? "from active pupils" : "Set fees to see this") + tile("Outstanding", N(out), exp ? pct + "% paid" : "") +
+        (exp ? '<div class="bu-bar" role="img" aria-label="' + pct + ' percent of expected fees collected"><i style="width:' + pct + '%"></i></div>' : "");
+    }, function () {});
+  }
+  function lineCsv(a) { return a.map(function (v) { v = v == null ? "" : String(v); return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; }).join(","); }
+  function stmtHTML(s) {
+    var logo = LOGO64 || esc(LOGO_URL), st = s.student, T = s.terms || [], P = s.payments || [], valid = P.filter(function (x) { return x.status === "valid"; }), due = T.reduce(function (a, x) { return a + Number(x.due); }, 0), paid = T.reduce(function (a, x) { return a + Number(x.paid); }, 0);
+    return '<div class="stm"><div class="stm-h"><img src="' + logo + '" alt="" width="54" height="54"><div><h2>' + esc(SCHOOL) + "</h2><p>Student fee statement</p></div></div>" +
+      '<dl class="stm-i"><div><dt>Pupil</dt><dd>' + esc(st.name) + "</dd></div><div><dt>Class</dt><dd>" + esc(st.class || "-") + "</dd></div><div><dt>Admission no.</dt><dd>" + esc(st.adm || "-") + "</dd></div><div><dt>Student ID</dt><dd>" + esc(st.code || "-") + "</dd></div><div><dt>Printed</dt><dd>" + new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" }) + "</dd></div></dl>" +
+      "<h3>Fees by term</h3>" + (T.length ? '<table class="stm-t"><thead><tr><th>Session</th><th>Term</th><th>Fees due</th><th>Paid</th><th>Balance</th></tr></thead><tbody>' + T.map(function (x) { var b = Number(x.due) - Number(x.paid); return "<tr><td>" + esc(x.session) + "</td><td>" + esc(x.term) + "</td><td>" + N(x.due) + "</td><td>" + N(x.paid) + "</td><td><b>" + (b > 0 ? N(b) : b < 0 ? N(-b) + " credit" : "Paid") + "</b></td></tr>"; }).join("") + "</tbody><tfoot><tr><th colspan='2'>Total</th><th>" + N(due) + "</th><th>" + N(paid) + "</th><th>" + N(Math.max(0, due - paid)) + "</th></tr></tfoot></table>" : "<p>No fees have been set for this pupil's class yet.</p>") +
+      "<h3>Payments received</h3>" + (P.length ? '<table class="stm-t stm-p"><thead><tr><th>Receipt</th><th>Date</th><th>Term</th><th>Item</th><th>Method</th><th>Amount</th></tr></thead><tbody>' + P.map(function (x) { var v = x.status !== "valid"; return "<tr" + (v ? ' class="stm-v"' : "") + "><td>" + esc(x.receipt) + "</td><td>" + esc(x.date) + "</td><td>" + esc(x.session + " " + x.term) + "</td><td>" + esc(x.item) + (v ? " (voided)" : "") + "</td><td>" + esc(METHODS[x.method] || x.method) + "</td><td>" + N(x.amount) + "</td></tr>"; }).join("") + "</tbody><tfoot><tr><th colspan='5'>Total received</th><th>" + N(valid.reduce(function (a, x) { return a + Number(x.amount); }, 0)) + "</th></tr></tfoot></table>" : "<p>No payments recorded yet.</p>") +
+      '<p class="stm-n">This statement lists payments recorded by the school office. Fees due use the class fee list for each term.</p></div>';
+  }
+  function vStatement() {
+    var b = $("#bu-body"); b.innerHTML = '<div class="toolbar"><div class="field-search"><span data-icon="search"></span><input id="sm-q" class="input" type="search" placeholder="Search by name or admission number" autocomplete="off" aria-label="Search pupil"></div></div><div id="sm-list"></div><div id="sm-out"></div>';
+    var tm; $("#sm-q").addEventListener("input", function () { clearTimeout(tm); var q = this.value.trim().replace(/[(),*%]/g, ""); if (q.length < 2) { $("#sm-list").innerHTML = ""; return; } tm = setTimeout(function () {
+      A.api("GET", "/rest/v1/students?select=id,first_name,last_name,admission_no,class_name&or=(first_name.ilike.*" + encodeURIComponent(q) + "*,last_name.ilike.*" + encodeURIComponent(q) + "*,admission_no.ilike.*" + encodeURIComponent(q) + "*)&order=last_name.asc&limit=12").then(function (r) {
+        $("#sm-list").innerHTML = (r || []).length ? '<ul class="sm-res">' + r.map(function (x) { return '<li><button type="button" class="btn btn-soft" data-sm="' + esc(x.id) + '"><b>' + esc(x.last_name + " " + x.first_name) + "</b><small>" + esc((x.class_name || "No class") + (x.admission_no ? " - " + x.admission_no : "")) + "</small></button></li>"; }).join("") + "</ul>" : '<p class="count-line">No pupil found.</p>';
+        $$("[data-sm]", b).forEach(function (btn) { btn.addEventListener("click", function () { show(btn.getAttribute("data-sm")); }); });
+      }, function (e) { say(false, A.nice(e.message)); });
+    }, 250); });
+    function show(id) {
+      $("#sm-out").innerHTML = '<p class="count-line">Loading...</p>';
+      rpc("student_statement", { p_student: id }).then(function (s) {
+        $("#sm-list").innerHTML = ""; $("#sm-out").innerHTML = '<div class="form-actions" style="margin:1rem 0"><button type="button" class="btn btn-primary" id="sm-pr">Print statement</button><button type="button" class="btn btn-soft" id="sm-csv">Save as spreadsheet</button></div><div class="stm-wrap">' + stmtHTML(s) + "</div>";
+        $("#sm-pr").addEventListener("click", function () { U.printHTML(stmtHTML(s)); });
+        $("#sm-csv").addEventListener("click", function () {
+          var L = [["Pupil", s.student.name], ["Class", s.student.class], ["Admission no", s.student.adm], [], ["Session", "Term", "Fees due", "Paid", "Balance"]].concat((s.terms || []).map(function (x) { return [x.session, x.term, x.due, x.paid, Number(x.due) - Number(x.paid)]; })).concat([[], ["Receipt", "Date", "Session", "Term", "Item", "Method", "Amount", "Status"]]).concat((s.payments || []).map(function (x) { return [x.receipt, x.date, x.session, x.term, x.item, x.method, x.amount, x.status]; }));
+          U.download("statement-" + String(s.student.name).replace(/\s+/g, "-").toLowerCase() + ".csv", "text/csv;charset=utf-8", "\ufeff" + L.map(lineCsv).join("\r\n"));
+        });
+      }, function (e) { $("#sm-out").innerHTML = ""; say(false, A.nice(e.message)); });
+    }
+  }
+  /* external finance / bursary website link, controlled here */
+  function safeUrl(u) { try { var x = new URL(u); return x.protocol === "https:" || x.protocol === "http:" ? x.href : ""; } catch (e) { return ""; } }
+  function vLink() {
+    var b = $("#bu-body"); b.innerHTML = '<p class="count-line">Loading...</p>';
+    A.api("GET", "/rest/v1/site_settings?select=value&key=eq.finance_link").then(function (r) {
+      var v = (r && r[0] && r[0].value) || {};
+      b.innerHTML = '<form class="form-card" id="fl-form" novalidate><div class="form-grid"><div class="fld full"><label for="fl-u">Website address</label><input class="input" id="fl-u" type="url" inputmode="url" placeholder="https://..." maxlength="300" value="' + esc(v.url || "") + '"></div><div class="fld"><label for="fl-l">Button name</label><input class="input" id="fl-l" maxlength="40" placeholder="Open bursary website" value="' + esc(v.label || "") + '"></div><div class="fld full"><label for="fl-n">Short note for parents (optional)</label><input class="input" id="fl-n" maxlength="160" value="' + esc(v.note || "") + '"></div><div class="fld full"><label class="check"><input type="checkbox" id="fl-p"' + (v.parents === false ? "" : " checked") + '> Also show this link to parents in their portal</label></div></div><div class="form-actions"><button class="btn btn-primary" type="submit">Save link</button><button class="btn btn-soft" type="button" id="fl-rm">Remove link</button></div></form><p class="count-line">This site does not take payments. The link only opens your own page, which must be a real address you control.</p>';
+      function save(val) { return A.api("POST", "/rest/v1/site_settings?on_conflict=key", { key: "finance_link", value: val }, { Prefer: "resolution=merge-duplicates,return=minimal" }); }
+      $("#fl-form").addEventListener("submit", function (e) { e.preventDefault(); var u = safeUrl($("#fl-u").value.trim()); if (!u) return say(false, "Enter a full website address starting with https://"); save({ url: u, label: $("#fl-l").value.trim() || "Open bursary website", note: $("#fl-n").value.trim(), parents: $("#fl-p").checked }).then(function () { say(true, "Link saved."); linkBtn(); }, function (er) { say(false, A.nice(er.message)); }); });
+      $("#fl-rm").addEventListener("click", function () { if (!confirm("Remove the finance link?")) return; save({}).then(function () { $("#fl-u").value = ""; say(true, "Link removed."); linkBtn(); }, function (er) { say(false, A.nice(er.message)); }); });
+    }, function (e) { b.innerHTML = '<div class="notice"><span>' + esc(A.nice(e.message)) + "</span></div>"; });
+  }
+  function linkBtn() {
+    var old = $("#bu-ext"); if (old) old.remove();
+    A.api("GET", "/rest/v1/site_settings?select=value&key=eq.finance_link").then(function (r) { var v = (r && r[0] && r[0].value) || {}, u = safeUrl(v.url || ""); if (!u) return; var a = document.createElement("a"); a.id = "bu-ext"; a.className = "btn btn-soft btn-sm"; a.href = u; a.target = "_blank"; a.rel = "noopener noreferrer"; a.textContent = (v.label || "Open bursary website") + " \u2197"; var h = $("#bu-sum"); if (h) h.parentNode.insertBefore(a, h); }, function () {});
+  }
   A.bursar = open; A.receiptHTML = receiptHTML;
 })();
