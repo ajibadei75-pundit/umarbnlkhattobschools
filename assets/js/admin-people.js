@@ -24,7 +24,7 @@
       A.api("GET", "/rest/v1/students?select=*&order=last_name.asc&limit=3000"),
       A.api("GET", "/rest/v1/classes?select=id,name,level,section&order=section.desc,sort.asc,name.asc"),
       A.api("POST", "/rest/v1/rpc/admin_list_parents", {}),
-      A.api("GET", "/rest/v1/admissions?select=id,reference,child_first_name,child_last_name,level,status&order=created_at.desc&limit=500")
+      A.api("GET", "/rest/v1/admissions?select=id,reference,child_first_name,child_last_name,level,class_applying,status&order=created_at.desc&limit=500")
     ]).then(function (r) { pupils = r[0] || []; classes = r[1] || []; parents = r[2] || []; admissions = r[3] || []; render(); },
       function (e) { host.innerHTML = '<div class="notice"><span>' + esc(nice(e.message)) + "</span></div>"; });
   }
@@ -39,12 +39,19 @@
     var enrolled = {}; pupils.forEach(function (p) { if (p.admission_id) enrolled[p.admission_id] = 1; });
     var open = admissions.filter(function (a) { return !enrolled[a.id] && a.status !== "declined" && a.status !== "withdrawn"; }), card = document.createElement("div");
     card.className = "form-card"; card.style.marginTop = "1.6rem";
-    card.innerHTML = '<h3 style="font-size:1.05rem;margin:0 0 .4rem">Enrol from an application</h3><p class="count-line">Creates the pupil from the application details. Choose it only after the school has offered the place.</p><form id="pe-enrol" novalidate><div class="fld"><label for="pe-ad">Application</label><select class="select-lg" id="pe-ad"><option value="">Choose...</option>' +
-      open.map(function (a) { return '<option value="' + esc(a.id) + '">' + esc(a.reference + " · " + a.child_first_name + " " + a.child_last_name + " (" + a.status.replace(/_/g, " ") + ")") + "</option>"; }).join("") + '</select></div><div class="form-actions" style="margin-top:1rem"><button class="btn btn-primary btn-sm" type="submit">Enrol pupil</button></div><div class="result" id="pe-res2" role="status"></div></form>';
+    card.innerHTML = '<h3 style="font-size:1.05rem;margin:0 0 .4rem">Enrol from an application</h3><p class="count-line">Accept an application and place the pupil in a class in one step. The application is marked as offered and the pupil appears in that class register.</p><form id="pe-enrol" novalidate><div class="fld"><label for="pe-ad">Application</label><select class="select-lg" id="pe-ad"><option value="">Choose...</option>' +
+      open.map(function (a) { return '<option value="' + esc(a.id) + '">' + esc(a.reference + " · " + a.child_first_name + " " + a.child_last_name + " (" + a.status.replace(/_/g, " ") + ")") + "</option>"; }).join("") + '</select></div><div class="fld"><label for="pe-cl">Place in class</label><select class="select-lg" id="pe-cl">' + clsOpts("", "Choose a class...") + '</select><p class="count-line" id="pe-hint"></p></div><div class="form-actions" style="margin-top:1rem"><button class="btn btn-primary btn-sm" type="submit">Accept and enrol</button></div><div class="result" id="pe-res2" role="status"></div></form>';
     body.appendChild(card);
+    $("#pe-ad").addEventListener("change", function () {
+      var a = open.filter(function (x) { return x.id === this.value; }.bind(this))[0], cl = $("#pe-cl"), h = $("#pe-hint"); h.textContent = ""; if (!a) return;
+      var want = String(a.class_applying || "").toLowerCase().replace(/\s+/g, ""), m = classes.filter(function (c) { return want && c.name.toLowerCase().replace(/\s+/g, "") === want; })[0];
+      if (m) { cl.value = m.id; h.textContent = "Applied for " + a.class_applying + ". Change it if the school places the child elsewhere."; } else if (a.class_applying || a.level) { h.textContent = "Applied for " + (a.class_applying || a.level) + ". Choose the class to place the child in."; }
+    });
     $("#pe-enrol").addEventListener("submit", function (e) {
-      e.preventDefault(); var r = $("#pe-res2"), id = $("#pe-ad").value; if (!id) return note(r, false, "Choose an application.");
-      A.api("POST", "/rest/v1/rpc/admin_enrol_from_admission", { p_admission: id }).then(load, function (er) { note(r, false, nice(er.message)); });
+      e.preventDefault(); var r = $("#pe-res2"), id = $("#pe-ad").value, cl = $("#pe-cl").value; if (!id) return note(r, false, "Choose an application."); if (!cl) return note(r, false, "Choose the class to place the pupil in.");
+      var b = e.target.querySelector("button[type=submit]"); b.disabled = true;
+      var ap = open.filter(function (x) { return x.id === id; })[0], first = ap && ap.status === "offered" ? Promise.resolve() : A.api("POST", "/rest/v1/rpc/admin_set_status", { p_id: id, p_status: "offered", p_note: "" });
+      first.then(function () { return A.api("POST", "/rest/v1/rpc/admin_enrol_into_class", { p_admission: id, p_class: cl }); }).then(load, function (er) { b.disabled = false; note(r, false, nice(er.message)); });
     });
   }
 

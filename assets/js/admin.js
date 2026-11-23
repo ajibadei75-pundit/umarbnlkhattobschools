@@ -260,6 +260,7 @@
       '<dl class="review" style="margin-top:1rem">' + row("Level", a.level) + row("Class", a.class_applying) + row("Date of birth", a.child_dob) + row("Gender", a.child_gender) + row("Previous school", a.previous_school) + row("Health or learning needs", a.health_notes) +
       row("Guardian", a.guardian_name) + row("Relationship", a.guardian_relationship) + row("Phone", a.guardian_phone) + row("Email", a.guardian_email) + row("Address", a.guardian_address) + row("Language", a.preferred_language) + "</dl>" +
       '<h3 style="font-size:1rem;margin:1.2rem 0 .4rem">Documents</h3>' + (docs ? '<ul class="ad-docs">' + docs + "</ul>" : '<p class="count-line">None uploaded.</p>') +
+      (can(["super_admin", "school_admin"]) && a.status !== "declined" && a.status !== "withdrawn" ? '<form id="ad-enrol" class="form-card" style="margin-top:1.2rem"><h3 style="font-size:1rem;margin:0 0 .3rem">Accept and place in a class</h3><p class="count-line">Marks the application as offered and creates the pupil in the class you choose.</p><div class="fld"><label for="ae-cl">Class</label><select class="select-lg" id="ae-cl"><option value="">Choose a class...</option></select></div><div class="form-actions"><button type="submit" class="btn btn-primary" id="ae-go">Accept and enrol</button></div><div class="result" id="ae-res" role="status" tabindex="-1"></div></form>' : "") +
       '<h3 style="font-size:1rem;margin:1.2rem 0 .4rem">Decision and message to the family</h3>' +
       '<form id="ad-status"><div class="form-grid"><div class="fld"><label for="ds-st">Status</label><select class="select-lg" id="ds-st">' + Object.keys(STATUSES).map(function (k) { return '<option value="' + k + '"' + (k === a.status ? " selected" : "") + ">" + esc(STATUSES[k]) + "</option>"; }).join("") + "</select></div>" +
       '<div class="fld full"><label for="ds-note">Message shown to the family on the Track page (optional)</label><textarea class="textarea" id="ds-note" maxlength="500" style="min-height:90px">' + esc(a.public_note || "") + "</textarea></div></div>" +
@@ -267,6 +268,21 @@
       '<h3 style="font-size:1rem;margin:1.4rem 0 .4rem">History</h3><ol class="timeline" id="ds-hist"><li><small>Loading...</small></li></ol>';
     U.openDialog($("#ad-dlg"));
     $$("[data-doc]").forEach(function (b) { b.addEventListener("click", function () { viewDoc(a.documents[+b.getAttribute("data-doc")], b); }); });
+    if ($("#ad-enrol")) {
+      api("GET", "/rest/v1/classes?select=id,name,level&order=sort.asc,name.asc").then(function (cs) {
+        var want = String(a.class_applying || "").toLowerCase().replace(/\s+/g, "");
+        $("#ae-cl").innerHTML += (cs || []).map(function (c) { return '<option value="' + esc(c.id) + '"' + (want && c.name.toLowerCase().replace(/\s+/g, "") === want ? " selected" : "") + ">" + esc(c.name) + "</option>"; }).join("");
+      }, function () {});
+      $("#ad-enrol").addEventListener("submit", function (e) {
+        e.preventDefault(); var res = $("#ae-res"), cl = $("#ae-cl").value, b = $("#ae-go");
+        if (!cl) { res.className = "result show bad"; res.textContent = "Choose the class first."; return; }
+        b.disabled = true;
+        var first = a.status === "offered" ? Promise.resolve() : rpc("admin_set_status", { p_id: a.id, p_status: "offered", p_note: a.public_note || "" });
+        first.then(function () { return rpc("admin_enrol_into_class", { p_admission: a.id, p_class: cl }); }).then(function () {
+          res.className = "result show ok"; res.textContent = "Done. The pupil is now in the class register."; return loadApps(true).then(function () { renderApps(); history_(a.id); });
+        }, function (err) { b.disabled = false; res.className = "result show bad"; res.textContent = nice(err.message); });
+      });
+    }
     $("#ad-status").addEventListener("submit", function (e) {
       e.preventDefault(); var res = $("#ds-res");
       rpc("admin_set_status", { p_id: a.id, p_status: $("#ds-st").value, p_note: $("#ds-note").value }).then(function () {
