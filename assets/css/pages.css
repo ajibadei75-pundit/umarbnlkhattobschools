@@ -1377,3 +1377,26 @@ body { font-size: .95rem; line-height: 1.6; }
 @media print{.stm{border:0;padding:0}.stm-t{display:table}.stm-t th,.stm-t td{white-space:normal}}
 @media(max-width:600px){.stm-t{display:table;font-size:.78rem}.stm-t th,.stm-t td{white-space:normal;padding:.3rem .35rem}}
 @media(max-width:600px){.stm-p th:nth-child(5),.stm-p td:nth-child(5){display:none}.stm-p td:nth-child(2){white-space:nowrap}}
+.reg-actc{white-space:nowrap}.reg-actc .btn{min-height:36px}@media(max-width:640px){.reg-actc .btn{min-height:44px}}
+
+/* Button balance: one height scale, one font, matching radius; phones keep 44px touch targets */
+.btn{font-family:Montserrat,Poppins,Arial,sans-serif;font-weight:600;border-radius:10px;min-height:44px;line-height:1.2}
+.btn-sm{min-height:36px;border-radius:8px;font-size:.85rem}
+.btn-danger{font-family:inherit}
+@media(max-width:760px){.btn,.btn.btn-sm,button.btn-sm,.menu-toggle,.to-top,.icon-btn{min-height:44px}.menu-toggle,.to-top{min-width:44px}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition-duration:.01ms!important;animation-duration:.01ms!important}}
+:focus-visible{outline:3px solid #D5A43B;outline-offset:2px}
+@media(max-width:760px){.btn,.btn-sm,.subnav a,.seg-view button,.link-arrow,.reg-bulk select,.pe-link select,.search-box input{min-height:44px!important}}
+
+/* Thin pattern + ayah, inspired by the reference pages, in our own purple and gold */
+.hero::before,.page-hero::before,.hx-cta::before{background-image:url("../img/pattern-thin.svg")!important;background-size:72px 72px!important}
+.hero::before{opacity:.16}.page-hero::before{opacity:.14}
+.site-footer{position:relative;isolation:isolate}.site-footer::before{content:"";position:absolute;inset:0;z-index:-1;opacity:.1;background:url("../img/pattern-thin.svg") 0 0/72px 72px;pointer-events:none}
+#quick{position:relative;isolation:isolate}#quick::before{content:"";position:absolute;inset:0;z-index:-1;opacity:.05;background:url("../img/pattern-thin.svg") 0 0/72px 72px;filter:invert(1) brightness(.2);pointer-events:none}
+.hx-ayah{font:600 clamp(1.5rem,5vw,2.3rem)/1.5 "IBM Plex Sans Arabic","Noto Naskh Arabic",serif;color:#D5A43B;margin:0 0 .15rem;text-align:start}
+.hx-ayah-t{font:500 .95rem Lato,sans-serif;color:rgb(255 255 255/82%);margin:0 0 1.1rem}
+[dir=rtl] .hx-ayah{text-align:right}
+@media(max-width:640px){.hx-ayah{font-size:1.45rem}.hx-ayah-t{font-size:.88rem;margin-bottom:.8rem}}
+.hx-sec h2,.sec-title{letter-spacing:-.01em}
+.hx-ayah{direction:ltr;unicode-bidi:isolate;text-align:left}
+[dir=rtl] .hx-ayah{direction:rtl;text-align:right}

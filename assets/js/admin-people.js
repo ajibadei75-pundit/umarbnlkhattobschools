@@ -35,7 +35,7 @@
   }
 
   function students(body) {
-    A.register(body, { pupils: pupils, classes: classes, reload: load, edit: editPupil });
+    A.register(body, { pupils: pupils, classes: classes, reload: load, edit: editPupil, del: A.can(["super_admin", "school_admin"]) ? delPupil : null });
     var enrolled = {}; pupils.forEach(function (p) { if (p.admission_id) enrolled[p.admission_id] = 1; });
     var open = admissions.filter(function (a) { return !enrolled[a.id] && a.status !== "declined" && a.status !== "withdrawn"; }), card = document.createElement("div");
     card.className = "form-card"; card.style.marginTop = "1.6rem";
@@ -80,6 +80,11 @@
     }); });
   }
 
+  function delPupil(id) {
+    var p = pupils.filter(function (x) { return x.id === id; })[0]; if (!p) return;
+    if (!confirm("Permanently delete " + p.first_name + " " + p.last_name + "?\n\nTheir scores, attendance, PIN and parent links are removed. Payment receipts stay in the finance records under their name.\n\nThis cannot be undone. To only hide the pupil, use Make inactive instead.")) return;
+    A.api("POST", "/rest/v1/rpc/admin_delete_student", { p_student: id }).then(load, function (er) { alert(nice(er.message)); });
+  }
   function editPupil(id) {
     var p = pupils.filter(function (x) { return x.id === id; })[0]; if (!p) return;
     $("#ad-dlg-t").textContent = "Edit pupil: " + p.first_name + " " + p.last_name;
