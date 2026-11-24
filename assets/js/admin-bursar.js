@@ -136,6 +136,8 @@
           var pct = +c.expected ? Math.min(100, Math.round(c.paid / c.expected * 100)) : 0;
           return "<tr><td><strong>" + esc(c.class_name) + "</strong></td><td>" + c.pupils + "</td><td>" + N(c.expected) + "</td><td>" + N(c.paid) + ' <small>(' + pct + "%)</small></td><td>" + N(Math.max(c.expected - c.paid, 0)) + "</td><td>" + c.fully_paid + "</td><td>" + c.owing + '</td><td><button type="button" class="btn btn-soft btn-sm" data-cl="' + esc(c.class_id) + '">Pupils</button></td></tr>';
         }).join("") + '</tbody></table></div><div id="bu-cl"></div>';
+      b.insertAdjacentHTML("afterbegin", '<div class="form-actions" style="margin-bottom:.8rem"><button type="button" class="btn btn-primary btn-sm" id="fs-csv"><span data-icon="download"></span> Full finance sheet (CSV)</button></div>'); U.injectIcons && U.injectIcons(b);
+      $("#fs-csv").addEventListener("click", fullSheet);
       $$("[data-cl]", b).forEach(function (x) { x.addEventListener("click", function () { classDetail(x.getAttribute("data-cl")); }); });
     }, function (e) { b.innerHTML = '<div class="notice"><span>' + esc(A.nice(e.message)) + "</span></div>"; });
   }
@@ -149,6 +151,25 @@
       $("#cd-pr").addEventListener("click", function () { U.printHTML("<h2>" + esc(SCHOOL) + "</h2><h3>" + esc(clsName(id)) + " · " + esc(cfg.session) + " " + esc(cfg.term) + " term</h3><table class=\"ad-table\"><tbody>" + r.map(function (s) { return "<tr><td>" + esc(s.full_name) + "</td><td>" + N(s.due) + "</td><td>" + N(s.paid) + "</td><td>" + N(s.balance) + "</td></tr>"; }).join("") + "</tbody></table>"); });
       out.scrollIntoView({ behavior: "smooth", block: "start" });
     }, function (e) { out.innerHTML = '<div class="notice"><span>' + esc(A.nice(e.message)) + "</span></div>"; });
+  }
+  /* One CSV for the whole school: class, fees, each payment in order, total paid, balance */
+  function fullSheet() {
+    var res = $("#bu-res"); if (res) res.textContent = "Preparing the finance sheet...";
+    var ids = (summary || []).map(function (c) { return c.class_id || c.id; }).filter(Boolean);
+    Promise.all([rpc("payments_list", { p_session: cfg.session, p_term: cfg.term })].concat(ids.map(function (id) { return rpc("class_balances", { p_class: id, p_session: cfg.session, p_term: cfg.term }); }))).then(function (all) {
+      var pays = (all[0] || []).filter(function (p) { return p.status === "valid"; }).sort(function (a, b) { return String(a.paid_on).localeCompare(String(b.paid_on)) || String(a.receipt_no).localeCompare(String(b.receipt_no)); });
+      var by = {}; pays.forEach(function (p) { (by[p.student_id] = by[p.student_id] || []).push(p); });
+      var rows = [], maxN = 1;
+      ids.forEach(function (id, i) { (all[i + 1] || []).forEach(function (s) { var pl = by[s.student_id || s.id] || []; maxN = Math.max(maxN, pl.length); rows.push({ cls: clsName(id), s: s, pl: pl }); }); });
+      var head = ["Admission no", "Pupil", "Class", "Total to pay"]; for (var k = 1; k <= maxN; k++) head.push("Payment " + k + " amount", "Payment " + k + " date", "Receipt " + k);
+      head.push("Total paid", "Balance remaining", "Status", "Session", "Term");
+      rows.sort(function (a, b) { return a.cls.localeCompare(b.cls, undefined, { numeric: true }) || String(a.s.full_name).localeCompare(String(b.s.full_name)); });
+      var out = rows.map(function (r) { var due = +r.s.due || 0, paid = +r.s.paid || 0, c = [r.s.admission_no, r.s.full_name, r.cls, due];
+        for (var k = 0; k < maxN; k++) { var p = r.pl[k]; c.push(p ? p.amount : "", p ? p.paid_on : "", p ? p.receipt_no : ""); }
+        c.push(paid, Math.max(due - paid, 0), !due ? "No fees set" : paid >= due ? "Paid in full" : paid > 0 ? "Part paid" : "Not paid", cfg.session, cfg.term); return c; });
+      csv("finance-sheet-" + cfg.session.replace("/", "-") + "-" + cfg.term + ".csv", head, out);
+      if (res) res.textContent = out.length + " pupils in the finance sheet.";
+    }, function (e) { if (res) res.textContent = A.nice(e.message); });
   }
   function csv(name, head, rows) {
     var q = function (v) { v = v == null ? "" : String(v); return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; };

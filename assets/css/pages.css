@@ -1400,3 +1400,72 @@ body { font-size: .95rem; line-height: 1.6; }
 .hx-sec h2,.sec-title{letter-spacing:-.01em}
 .hx-ayah{direction:ltr;unicode-bidi:isolate;text-align:left}
 [dir=rtl] .hx-ayah{direction:rtl;text-align:right}
+
+/* Student register: balanced phone layout */
+.reg-head .form-actions .btn{display:inline-flex;align-items:center;justify-content:center;gap:.45rem}
+.reg-head .form-actions .btn [data-icon]{display:inline-flex;width:1.05em;height:1.05em}
+.reg-head .form-actions .btn [data-icon] svg{width:100%;height:100%}
+@media(max-width:640px){
+ .reg-head .form-actions{display:grid;grid-template-columns:1fr 1fr;gap:.55rem;width:100%}
+ .reg-head .form-actions .btn{width:100%;min-height:46px;font-size:.92rem;margin:0}
+ .reg-head .form-actions #rg-add{grid-column:1/-1;min-height:50px}
+ .reg-chips{flex-wrap:nowrap;overflow-x:auto;scroll-snap-type:x proximity;margin-inline:-1rem;padding:.1rem 1rem .5rem;gap:.45rem;scrollbar-width:none}
+ .reg-chips::-webkit-scrollbar{display:none}
+ .reg-chip{flex:0 0 auto;scroll-snap-align:start;min-height:40px;white-space:nowrap}
+ .qb-filters{display:grid;grid-template-columns:1fr 1fr;gap:.6rem}
+ .qb-filters .fld:first-child{grid-column:1/-1}
+ .reg-bulk{display:grid;grid-template-columns:1fr 1fr;gap:.5rem}
+ .reg-bulk b,.reg-bulk select{grid-column:1/-1}
+ .reg-bulk .btn{width:100%;min-height:44px}
+}
+@media(max-width:640px){
+ .reg-head .form-actions #rg-prt{grid-column:1/-1}
+ .reg-head .form-actions .btn{white-space:nowrap;font-size:.88rem;padding-inline:.6rem}
+}
+
+/* Phone balance: button groups share equal widths; odd last button spans */
+@media(max-width:640px){
+ main .toolbar,main .form-actions,main .rowbtns{display:grid!important;grid-template-columns:1fr 1fr;gap:.55rem;align-items:stretch}
+ main .toolbar>.btn,main .form-actions>.btn,main .rowbtns>.btn{width:100%;min-height:46px;margin:0;justify-content:center;text-align:center;flex:none}
+ main .toolbar>.btn:last-child:nth-child(odd),main .form-actions>.btn:last-child:nth-child(odd){grid-column:1/-1}
+ main .toolbar>.fld,main .toolbar>input,main .toolbar>select,main .toolbar>.search,main .toolbar>form,main .toolbar>label{grid-column:1/-1;width:100%}
+ main .ad-bar .btn{width:auto}
+ .ad-bar{align-items:center}
+ main select.select-lg,main .input{max-width:100%}
+ main h1,main h2{overflow-wrap:anywhere}
+}
+@media(max-width:640px){
+ main .form-actions,main .toolbar{width:100%}
+ main .toolbar>:not(.btn){grid-column:1/-1;width:100%;max-width:100%;min-width:0}
+ main .activity-tabs{display:grid!important;grid-template-columns:1fr 1fr;gap:.5rem;width:100%}
+ main .activity-tabs>.btn{width:100%;min-height:44px;margin:0;justify-content:center;text-align:center;flex:none}
+ main .activity-tabs>.btn:last-child:nth-child(odd){grid-column:1/-1}
+}
+@media(max-width:640px){
+ main .toolbar:has(input[type=date]){grid-template-columns:48px 1fr 48px}
+ main .toolbar:has(input[type=date])>:not(.btn){grid-column:auto}
+ main .toolbar:has(input[type=date])>.btn{min-width:0;padding-inline:0}
+ main .toolbar:has(input[type=date])>select,main .toolbar:has(input[type=date])>.fld:not(:has(input[type=date])){grid-column:1/-1}
+}
+@media(max-width:640px){
+ main .toolbar:has(input[type=date])>select:not(.x):not(.y),main .toolbar:has(input[type=date])>.fld:not(:has(input[type=date])):not(.y){grid-column:1/-1}
+ main .toolbar:has(input[type=date])>input[type=date]{width:100%;min-width:0}
+ main .form-actions>.btn:only-child,main .toolbar>.btn:only-child{grid-column:1/-1}
+}
+
+/* Sign-in cards, portals, tracking: phone balance */
+@media(max-width:640px){
+ .sec-lead{font-size:.98rem;line-height:1.55}
+ label.check{display:grid;grid-template-columns:auto 1fr;gap:0 .7rem;align-items:center;min-height:44px}
+ label.check input{margin-top:.2rem}
+ label.check small{grid-column:2;font-size:.82rem}
+ form .form-actions>.btn:only-child,.form-actions>.btn-primary:only-child{grid-column:1/-1}
+ .form-actions{width:100%}
+ #p-track .form-actions,form[id*=track] .form-actions{grid-template-columns:1fr 1fr}
+}
+@media(max-width:640px){
+ #t-go{width:100%;min-height:48px}
+ #t-go+.link-arrow{width:100%;justify-content:center;margin-top:.4rem;min-height:44px}
+ #lc-refresh,.lc-refresh{width:100%}
+}
+@media(max-width:640px){#t-go,#t-go+.link-arrow{grid-column:1/-1}}
