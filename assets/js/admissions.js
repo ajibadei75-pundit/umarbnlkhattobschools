@@ -8,6 +8,9 @@
   var EXT = { "application/pdf": "pdf", "image/jpeg": "jpg", "image/png": "png" };
 
   function val(id) { return ($("#a-" + id).value || "").trim(); }
+  var CLS = { nursery: ["Nursery 1", "Nursery 2", "KG 1", "KG 2"], primary: ["Basic 1", "Basic 2", "Basic 3", "Basic 4", "Basic 5", "Basic 6"], secondary: ["JSS 1", "JSS 2", "JSS 3"] };
+  function fillClasses() { var dl = document.getElementById("a-class-list"); if (!dl) return; var lv = level(); dl.innerHTML = (CLS[lv] || []).map(function (c) { return '<option value="' + c + '">'; }).join(""); }
+  document.addEventListener("change", function (e) { if (e.target && e.target.name === "level") fillClasses(); });
   function level() { var r = $("input[name=level]:checked"); return r ? r.value : ""; }
   function flag(id, bad, bag) {
     var f = $("#a-" + id) || $("#err-" + id), box = (f && f.closest(".fld")) || $("#err-" + id).closest(".fld");

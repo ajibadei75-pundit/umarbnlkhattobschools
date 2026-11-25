@@ -1469,3 +1469,12 @@ body { font-size: .95rem; line-height: 1.6; }
  #lc-refresh,.lc-refresh{width:100%}
 }
 @media(max-width:640px){#t-go,#t-go+.link-arrow{grid-column:1/-1}}
+
+/* Entrance exam result card */
+.ex-score{display:flex;align-items:baseline;justify-content:space-between;gap:1rem;margin:1rem 0;padding:1rem 1.1rem;border-radius:14px;background:#F1EEF8;border:1px solid #C5B9DE}
+.ex-score b{font:800 clamp(1.8rem,7vw,2.4rem)/1 Poppins,sans-serif;color:#302078}.ex-score b small{font-size:.5em;font-weight:600;color:#5b5478}
+.ex-score span{font:700 1.3rem Poppins,sans-serif}.ex-hi span{color:#16807e}.ex-mid span{color:#9a6f10}.ex-lo span{color:#A52D35}
+.ex-dl{display:grid;grid-template-columns:1fr 1fr;gap:.7rem 1rem;margin:0 0 .8rem}.ex-dl dt{font-size:.78rem;color:#6a6482;text-transform:uppercase;letter-spacing:.04em}.ex-dl dd{margin:0;font-weight:600}
+@media(max-width:480px){.ex-dl{grid-template-columns:1fr}}
+.map-actions{display:flex;flex-wrap:wrap;gap:.5rem}
+@media(max-width:640px){.map-actions .btn{flex:1 1 100%;min-height:46px;justify-content:center}}

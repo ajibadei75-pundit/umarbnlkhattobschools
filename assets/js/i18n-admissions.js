@@ -4,7 +4,7 @@
   function add(l, o) { Object.keys(o).forEach(function (k) { T[l][k] = o[k]; }); }
   add("en", {
     "pg.track": "Track application", "pg.track.d": "Check the status of an application with your reference and code",
-    "pg.admissions.lead": "Apply online for a Nursery or Primary place and follow your application.",
+    "pg.admissions.lead": "Apply online for a Nursery, Primary or Secondary (JSS 1 to 3) place and follow your application.",
     "pg.track.lead": "Enter your reference number and tracking code to see where your application is.",
     "card.admissions.t": "Admissions", "card.admissions.d": "Requirements, online application, document upload, reference number and status tracking.",
     "adm.steps.t": "How it works",
@@ -22,7 +22,8 @@
     "adm.privacy": "Details are used only for admission and are visible only to authorised school staff. See the privacy notice.",
     "adm.form.t": "Online application", "adm.progress": "Step {n} of {m}",
     "adm.s1": "Child", "adm.s2": "Guardian", "adm.s3": "Documents", "adm.s4": "Review",
-    "adm.level": "Level applied for", "adm.class": "Class (optional)", "adm.class.ph": "e.g. Nursery 2, Primary 1, Secondary 1",
+    "ex.t": "Entrance exam result", "ex.d": "Enter the unique code the school gave you after the entrance exam.", "ex.code": "Exam code", "ex.go": "See result",
+    "adm.level": "Level applied for", "adm.class": "Class (optional)", "adm.class.ph": "Choose or type, e.g. JSS 1",
     "adm.cfn": "Child's first name", "adm.cln": "Child's last name", "adm.dob": "Date of birth", "adm.gender": "Gender (optional)",
     "adm.g.female": "Girl", "adm.g.male": "Boy", "adm.g.none": "Prefer not to say",
     "adm.prev": "Previous school (optional)", "adm.health": "Health or learning needs the school should know about (optional)",
@@ -60,7 +61,7 @@
   });
   add("ar", {
     "pg.track": "متابعة الطلب", "pg.track.d": "تحقق من حالة الطلب برقمك المرجعي ورمزك",
-    "pg.admissions.lead": "قدّم طلب التحاق بمرحلة الحضانة أو الابتدائي عبر الإنترنت وتابع طلبك.",
+    "pg.admissions.lead": "قدّم طلب التحاق بمرحلة الحضانة أو الابتدائي أو الإعدادي (JSS 1 إلى 3) عبر الإنترنت وتابع طلبك.",
     "pg.track.lead": "أدخل الرقم المرجعي ورمز المتابعة لمعرفة حالة طلبك.",
     "card.admissions.t": "القبول", "card.admissions.d": "المتطلبات والتقديم عبر الإنترنت ورفع المستندات والرقم المرجعي ومتابعة الحالة.",
     "adm.steps.t": "كيف يعمل", "adm.st1": "تحقق مما تحتاجه", "adm.st1.d": "اقرأ المتطلبات أدناه وجهّز مستنداتك.",
@@ -73,7 +74,8 @@
     "adm.privacy": "تُستخدم البيانات للقبول فقط ولا يراها إلا موظفو المدرسة المخولون. راجع إشعار الخصوصية.",
     "adm.form.t": "التقديم عبر الإنترنت", "adm.progress": "الخطوة {n} من {m}",
     "adm.s1": "الطفل", "adm.s2": "ولي الأمر", "adm.s3": "المستندات", "adm.s4": "المراجعة",
-    "adm.level": "المرحلة المطلوبة", "adm.class": "الصف (اختياري)", "adm.class.ph": "مثال: حضانة 2، ابتدائي 1",
+    "ex.t": "نتيجة امتحان القبول", "ex.d": "أدخل الرمز الخاص الذي أعطتك إياه المدرسة بعد امتحان القبول.", "ex.code": "رمز الامتحان", "ex.go": "عرض النتيجة",
+    "adm.level": "المرحلة المطلوبة", "adm.class": "الصف (اختياري)", "adm.class.ph": "اختر أو اكتب، مثال: JSS 1",
     "adm.cfn": "الاسم الأول للطفل", "adm.cln": "اسم العائلة للطفل", "adm.dob": "تاريخ الميلاد", "adm.gender": "الجنس (اختياري)",
     "adm.g.female": "بنت", "adm.g.male": "ولد", "adm.g.none": "أفضّل عدم الذكر",
     "adm.prev": "المدرسة السابقة (اختياري)", "adm.health": "احتياجات صحية أو تعليمية يجب أن تعرفها المدرسة (اختياري)",
@@ -109,7 +111,7 @@
   });
   add("ha", {
     "pg.track": "Bibiyar buƙata", "pg.track.d": "Duba matsayin buƙata da lambar tunani da lambar bibiya",
-    "pg.admissions.lead": "Nemi gurbin Nursery ko Firamare ta intanet kuma ka bibiyi buƙatarka.",
+    "pg.admissions.lead": "Nemi gurbin Nursery, Firamare ko Sakandare (JSS 1 zuwa 3) ta intanet kuma ka bibiyi buƙatarka.",
     "pg.track.lead": "Shigar da lambar tunani da lambar bibiya don ganin inda buƙatarka take.",
     "card.admissions.t": "Shiga Makaranta", "card.admissions.d": "Buƙatu, neman shiga ta intanet, loda takardu, lambar tunani da bibiyar matsayi.",
     "adm.steps.t": "Yadda yake aiki", "adm.st1": "Duba abin da kake buƙata", "adm.st1.d": "Karanta buƙatun da ke ƙasa ka shirya takardunka.",
@@ -122,7 +124,8 @@
     "adm.privacy": "Ana amfani da bayanai don shiga kawai, kuma ma'aikatan makaranta masu izini ne kaɗai ke gani. Duba sanarwar sirri.",
     "adm.form.t": "Neman shiga ta intanet", "adm.progress": "Mataki na {n} cikin {m}",
     "adm.s1": "Yaro", "adm.s2": "Mai kula", "adm.s3": "Takardu", "adm.s4": "Dubawa",
-    "adm.level": "Matakin da ake nema", "adm.class": "Aji (zaɓi)", "adm.class.ph": "misali Nursery 2, Primary 1",
+    "ex.t": "Sakamakon jarrabawar shiga", "ex.d": "Shigar da lambar musamman da makaranta ta ba ka bayan jarrabawar shiga.", "ex.code": "Lambar jarrabawa", "ex.go": "Duba sakamako",
+    "adm.level": "Matakin da ake nema", "adm.class": "Aji (zaɓi)", "adm.class.ph": "Zaɓi ko rubuta, misali JSS 1",
     "adm.cfn": "Sunan farko na yaro", "adm.cln": "Sunan ƙarshe na yaro", "adm.dob": "Ranar haihuwa", "adm.gender": "Jinsi (zaɓi)",
     "adm.g.female": "Yarinya", "adm.g.male": "Yaro", "adm.g.none": "Na gwammace kar in faɗa",
     "adm.prev": "Makarantar baya (zaɓi)", "adm.health": "Buƙatun lafiya ko koyo da ya kamata makaranta ta sani (zaɓi)",

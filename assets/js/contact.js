@@ -18,7 +18,9 @@
     card("mail", t("con.email"), s.email ? '<p><a href="mailto:' + esc(s.email) + '">' + esc(s.email) + "</a></p>" : tbc);
     card("chat", t("con.whatsapp"), waNum() ? '<p>+' + esc(waNum()) + '</p><a class="btn btn-soft btn-sm" target="_blank" rel="noopener" href="https://wa.me/' + waNum() + '">' + esc(t("con.chat")) + "</a>" : tbc);
     card("clock", t("con.hours"), s.hours && s.hours.length ? '<ul class="hours">' + s.hours.map(function (h) { return "<li><span>" + esc(h.days) + "</span><strong>" + esc(h.time) + "</strong></li>"; }).join("") + "</ul>" : tbc);
-    card("mappin", t("con.map"), s.mapUrl ? '<a class="btn btn-soft btn-sm" target="_blank" rel="noopener" href="' + esc(s.mapUrl) + '">' + esc(t("con.open.map")) + "</a>" : tbc);
+    var hasPin = s.lat != null && s.lng != null && !isNaN(+s.lat) && !isNaN(+s.lng);
+    card("mappin", t("con.map"), s.mapUrl || hasPin ? '<div class="map-actions"><a class="btn btn-soft btn-sm" target="_blank" rel="noopener" href="' + esc(s.mapUrl || ("https://www.google.com/maps?q=" + s.lat + "," + s.lng)) + '">' + esc(t("con.open.map")) + "</a>" +
+      (hasPin ? '<a class="btn btn-primary btn-sm" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=' + esc(s.lat) + "," + esc(s.lng) + '">' + esc(t("con.dir") !== "con.dir" ? t("con.dir") : "Get directions") + "</a>" : "") + "</div>" : tbc);
     $("#info-list").innerHTML = cards.join("");
   }
 

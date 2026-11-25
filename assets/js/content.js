@@ -5,7 +5,7 @@
   "use strict";
   var U = window.UBK, root = document.documentElement, D = window.UBK_DATA, S = window.UBK_SITE || (window.UBK_SITE = {});
   var B = S.backend, CACHE = "ubk-content-v1", raw = null, SAMPLE = { news: D.news, events: D.events, faqs: D.faqs };
-  var BASE_SITE = JSON.parse(JSON.stringify({ address: S.address || "", phones: S.phones || [], email: S.email || "", whatsapp: S.whatsapp || "", mapUrl: S.mapUrl || "", hours: S.hours || [] }));
+  var BASE_SITE = JSON.parse(JSON.stringify({ address: S.address || "", phones: S.phones || [], email: S.email || "", whatsapp: S.whatsapp || "", mapUrl: S.mapUrl || "", lat: S.lat == null ? null : S.lat, lng: S.lng == null ? null : S.lng, hours: S.hours || [] }));
   if (!B || !B.url || !B.key) return;
 
   function pick(o, l) { if (!o) return ""; return o[l] || o.en || o[Object.keys(o).filter(function (k) { return o[k] && o[k].length; })[0]] || ""; }
@@ -22,6 +22,7 @@
     S.session = raw.session || null;
     var c = raw.contact;
     ["address", "email", "whatsapp", "mapUrl"].forEach(function (k) { S[k] = c ? (c[k] || "") : BASE_SITE[k]; });
+    ["lat", "lng"].forEach(function (k) { S[k] = c && c[k] != null ? c[k] : BASE_SITE[k]; });
     S.phones = c ? (c.phones || []) : BASE_SITE.phones; S.hours = c ? (c.hours || []) : BASE_SITE.hours;
   }
   function apply(data) { raw = data; build(root.lang || "en"); }

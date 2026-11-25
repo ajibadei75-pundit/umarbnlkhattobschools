@@ -261,6 +261,10 @@
       row("Guardian", a.guardian_name) + row("Relationship", a.guardian_relationship) + row("Phone", a.guardian_phone) + row("Email", a.guardian_email) + row("Address", a.guardian_address) + row("Language", a.preferred_language) + "</dl>" +
       '<h3 style="font-size:1rem;margin:1.2rem 0 .4rem">Documents</h3>' + (docs ? '<ul class="ad-docs">' + docs + "</ul>" : '<p class="count-line">None uploaded.</p>') +
       (can(["super_admin", "school_admin"]) && a.status !== "declined" && a.status !== "withdrawn" ? '<form id="ad-enrol" class="form-card" style="margin-top:1.2rem"><h3 style="font-size:1rem;margin:0 0 .3rem">Accept and place in a class</h3><p class="count-line">Marks the application as offered and creates the pupil in the class you choose.</p><div class="fld"><label for="ae-cl">Class</label><select class="select-lg" id="ae-cl"><option value="">Choose a class...</option></select></div><div class="form-actions"><button type="submit" class="btn btn-primary" id="ae-go">Accept and enrol</button></div><div class="result" id="ae-res" role="status" tabindex="-1"></div></form>' : "") +
+      '<form id="ad-exam" class="form-card" style="margin-top:1.2rem"><h3 style="font-size:1rem;margin:0 0 .3rem">Entrance exam result</h3><p class="count-line" style="margin:0 0 .7rem">' + (a.exam_code ? 'Unique code: <strong dir="ltr" id="ex-code">' + esc(a.exam_code) + '</strong>. Give it to the family; they check the result on the Track page.' : 'A unique code is created when you save. Give it to the family; they check the result on the Track page.') + '</p>' +
+      '<div class="form-grid"><div class="fld"><label for="ex-dt">Exam date</label><input class="input" type="date" id="ex-dt" value="' + esc(a.exam_date || "") + '"></div><div class="fld"><label for="ex-sc">Score</label><input class="input" type="number" inputmode="decimal" min="0" step="0.5" id="ex-sc" value="' + (a.exam_score == null ? "" : esc(a.exam_score)) + '"></div><div class="fld"><label for="ex-tt">Out of</label><input class="input" type="number" inputmode="decimal" min="1" step="0.5" id="ex-tt" value="' + esc(a.exam_total || 100) + '"></div><div class="fld full"><label for="ex-rm">Remark shown to the family (optional)</label><input class="input" id="ex-rm" maxlength="200" value="' + esc(a.exam_remark || "") + '"></div></div>' +
+      '<label class="check" style="margin-top:.6rem"><input type="checkbox" id="ex-pub"' + (a.exam_published ? " checked" : "") + '> <span>Show this result to the family now</span></label>' +
+      '<div class="form-actions" style="margin-top:.8rem"><button type="submit" class="btn btn-primary">Save result</button>' + (a.exam_code ? '<button type="button" class="btn btn-soft" id="ex-cp">Copy code</button>' : "") + '</div><div class="result" id="ex-res" role="status" tabindex="-1"></div></form>' +
       '<h3 style="font-size:1rem;margin:1.2rem 0 .4rem">Decision and message to the family</h3>' +
       '<form id="ad-status"><div class="form-grid"><div class="fld"><label for="ds-st">Status</label><select class="select-lg" id="ds-st">' + Object.keys(STATUSES).map(function (k) { return '<option value="' + k + '"' + (k === a.status ? " selected" : "") + ">" + esc(STATUSES[k]) + "</option>"; }).join("") + "</select></div>" +
       '<div class="fld full"><label for="ds-note">Message shown to the family on the Track page (optional)</label><textarea class="textarea" id="ds-note" maxlength="500" style="min-height:90px">' + esc(a.public_note || "") + "</textarea></div></div>" +
@@ -283,6 +287,13 @@
         }, function (err) { b.disabled = false; res.className = "result show bad"; res.textContent = nice(err.message); });
       });
     }
+    $("#ad-exam").addEventListener("submit", function (e) {
+      e.preventDefault(); var res = $("#ex-res"), sc = $("#ex-sc").value;
+      rpc("admin_set_entrance", { p_id: a.id, p_date: $("#ex-dt").value || null, p_score: sc === "" ? null : +sc, p_total: +$("#ex-tt").value || null, p_remark: $("#ex-rm").value, p_publish: $("#ex-pub").checked }).then(function (r) {
+        res.className = "result show ok"; res.textContent = "Saved. Code: " + r.exam_code + (r.published ? " (visible to the family)." : " (not shown to the family yet)."); return loadApps(true).then(function () { renderApps(); });
+      }, function (err) { res.className = "result show bad"; res.textContent = /invalid:score/.test(err.message) ? "The score must be between 0 and the total." : nice(err.message); });
+    });
+    if ($("#ex-cp")) $("#ex-cp").addEventListener("click", function () { try { navigator.clipboard.writeText(a.exam_code); this.textContent = "Copied"; } catch (x) {} });
     $("#ad-status").addEventListener("submit", function (e) {
       e.preventDefault(); var res = $("#ds-res");
       rpc("admin_set_status", { p_id: a.id, p_status: $("#ds-st").value, p_note: $("#ds-note").value }).then(function () {

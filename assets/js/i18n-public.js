@@ -3,7 +3,7 @@
   var T = window.UBK_I18N;
   function add(l, o) { Object.keys(o).forEach(function (k) { T[l][k] = o[k]; }); }
   add("en", {
-    "tb.apply": "Apply for Admission", "bb.label": "At a glance", "bb.1": "Qur'an is our honour", "bb.1d": "Our school motto", "bb.2": "Nursery and Primary", "bb.2d": "With Qur'anic and Arabic studies", "bb.3d": "Admissions desk", "ss.title": "Academic session", "ss.term": "{t} term", "ss.now": "In session", "ss.hol": "On break", "ss.begins": "Begins", "ss.ends": "Ends", "ss.left": "{n} days left", "ss.last": "Last day of term", "ss.starts_in": "Next term begins in {n} days", "ss.next": "Next term", "ss.none": "The session dates will be announced by the school.", "ss.First": "First", "ss.Second": "Second", "ss.Third": "Third", "ss.week": "Week {w} of {n}", "ss.ended": "Session ended",
+    "tb.apply": "Apply for Admission", "bb.label": "At a glance", "bb.1": "Qur'an is our honour", "bb.1d": "Our school motto", "bb.2": "Nursery, Primary and Secondary", "bb.2d": "With Qur'anic and Arabic studies", "bb.3d": "Admissions desk", "ss.title": "Academic session", "ss.term": "{t} term", "ss.now": "In session", "ss.hol": "On break", "ss.begins": "Begins", "ss.ends": "Ends", "ss.left": "{n} days left", "ss.last": "Last day of term", "ss.starts_in": "Next term begins in {n} days", "ss.next": "Next term", "ss.none": "The session dates will be announced by the school.", "ss.First": "First", "ss.Second": "Second", "ss.Third": "Third", "ss.week": "Week {w} of {n}", "ss.ended": "Session ended",
     "pt.admin": "Admin portal",
     "pt.student": "Student portal", "pt.student.d2": "See your result and learn with games",
     "pt.parent": "Parent portal",
@@ -42,7 +42,7 @@
     "hq.t": "Welcome! What would you like to do?",
     "hero.ayah": "\"My Lord, increase me in knowledge.\" (Qur'an 20:114)",
     "hx.seeall": "See all programmes",
-    "tick.1": "Qur'anic and Arabic studies","tick.2": "Nursery and Primary classes","tick.3": "Apply online, track any time",
+    "tick.1": "Qur'anic and Arabic studies","tick.2": "Nursery, Primary and JSS 1 to 3","tick.3": "Apply online, track any time",
     "hq.apply": "Apply for admission",
     "hq.apply.d": "Start online in a few minutes",
     "hq.parent": "Parents' portal",
@@ -54,7 +54,7 @@
     "hero.lead": "A school community where academic excellence and Qur'anic education grow together."
   });
   add("ar", {
-    "tb.apply": "قدّم للقبول", "bb.label": "لمحة", "bb.1": "القرآن شرفنا", "bb.1d": "شعار مدرستنا", "bb.2": "الحضانة والابتدائية", "bb.2d": "مع الدراسات القرآنية والعربية", "bb.3d": "مكتب القبول", "ss.title": "العام الدراسي", "ss.term": "الفصل {t}", "ss.now": "الدراسة جارية", "ss.hol": "عطلة", "ss.begins": "يبدأ", "ss.ends": "ينتهي", "ss.left": "متبقٍ {n} يومًا", "ss.last": "آخر يوم في الفصل", "ss.starts_in": "يبدأ الفصل القادم بعد {n} يومًا", "ss.next": "الفصل القادم", "ss.none": "ستعلن المدرسة مواعيد العام الدراسي.", "ss.First": "الأول", "ss.Second": "الثاني", "ss.Third": "الثالث", "ss.week": "الأسبوع {w} من {n}", "ss.ended": "انتهى العام",
+    "tb.apply": "قدّم للقبول", "bb.label": "لمحة", "bb.1": "القرآن شرفنا", "bb.1d": "شعار مدرستنا", "bb.2": "الحضانة والابتدائية والإعدادية", "bb.2d": "مع الدراسات القرآنية والعربية", "bb.3d": "مكتب القبول", "ss.title": "العام الدراسي", "ss.term": "الفصل {t}", "ss.now": "الدراسة جارية", "ss.hol": "عطلة", "ss.begins": "يبدأ", "ss.ends": "ينتهي", "ss.left": "متبقٍ {n} يومًا", "ss.last": "آخر يوم في الفصل", "ss.starts_in": "يبدأ الفصل القادم بعد {n} يومًا", "ss.next": "الفصل القادم", "ss.none": "ستعلن المدرسة مواعيد العام الدراسي.", "ss.First": "الأول", "ss.Second": "الثاني", "ss.Third": "الثالث", "ss.week": "الأسبوع {w} من {n}", "ss.ended": "انتهى العام",
     "pt.admin": "بوابة الإدارة",
     "pt.student": "بوابة الطالب", "pt.student.d2": "اطّلع على نتيجتك وتعلّم بالألعاب",
     "pt.parent": "بوابة أولياء الأمور",
@@ -93,7 +93,7 @@
     "hq.t": "أهلًا بكم! ماذا تودون أن تفعلوا؟",
     "hero.ayah": "(القرآن 20:114)",
     "hx.seeall": "عرض كل البرامج",
-    "tick.1": "دراسات قرآنية وعربية","tick.2": "فصول الحضانة والابتدائي","tick.3": "قدّم عبر الإنترنت وتابع في أي وقت",
+    "tick.1": "دراسات قرآنية وعربية","tick.2": "الحضانة والابتدائي وJSS 1 إلى 3","tick.3": "قدّم عبر الإنترنت وتابع في أي وقت",
     "hq.apply": "التقدّم للقبول",
     "hq.apply.d": "ابدأوا عبر الإنترنت في دقائق",
     "hq.parent": "بوابة أولياء الأمور",
@@ -105,7 +105,7 @@
     "hero.lead": "مجتمع مدرسي ينمو فيه التفوق الأكاديمي مع التعليم القرآني."
   });
   add("ha", {
-    "tb.apply": "Nemi shiga makaranta", "bb.label": "Kallo ɗaya", "bb.1": "Alƙur'ani shi ne darajarmu", "bb.1d": "Taken makarantarmu", "bb.2": "Nursery da Firamare", "bb.2d": "Tare da karatun Alƙur'ani da Larabci", "bb.3d": "Ofishin shiga makaranta", "ss.title": "Shekarar karatu", "ss.term": "Zangon {t}", "ss.now": "Ana karatu", "ss.hol": "Hutu", "ss.begins": "Farawa", "ss.ends": "Ƙarewa", "ss.left": "Saura kwana {n}", "ss.last": "Ranar ƙarshe ta zango", "ss.starts_in": "Zango na gaba zai fara bayan kwana {n}", "ss.next": "Zango na gaba", "ss.none": "Makaranta za ta sanar da ranakun shekarar karatu.", "ss.First": "Na Farko", "ss.Second": "Na Biyu", "ss.Third": "Na Uku", "ss.week": "Mako na {w} cikin {n}", "ss.ended": "Shekara ta ƙare",
+    "tb.apply": "Nemi shiga makaranta", "bb.label": "Kallo ɗaya", "bb.1": "Alƙur'ani shi ne darajarmu", "bb.1d": "Taken makarantarmu", "bb.2": "Nursery, Firamare da Sakandare", "bb.2d": "Tare da karatun Alƙur'ani da Larabci", "bb.3d": "Ofishin shiga makaranta", "ss.title": "Shekarar karatu", "ss.term": "Zangon {t}", "ss.now": "Ana karatu", "ss.hol": "Hutu", "ss.begins": "Farawa", "ss.ends": "Ƙarewa", "ss.left": "Saura kwana {n}", "ss.last": "Ranar ƙarshe ta zango", "ss.starts_in": "Zango na gaba zai fara bayan kwana {n}", "ss.next": "Zango na gaba", "ss.none": "Makaranta za ta sanar da ranakun shekarar karatu.", "ss.First": "Na Farko", "ss.Second": "Na Biyu", "ss.Third": "Na Uku", "ss.week": "Mako na {w} cikin {n}", "ss.ended": "Shekara ta ƙare",
     "pt.admin": "Shafin Gudanarwa",
     "pt.student": "Shafin Ɗalibi", "pt.student.d2": "Duba sakamakonka ka koyi da wasanni",
     "pt.parent": "Shafin Iyaye",
@@ -144,7 +144,7 @@
     "hq.t": "Barka da zuwa! Me kuke so ku yi?",
     "hero.ayah": "\"Ya Ubangijina, ƙara mini ilimi.\" (Alƙur'ani 20:114)",
     "hx.seeall": "Duba dukkan shirye-shirye",
-    "tick.1": "Karatun Alkur'ani da Larabci","tick.2": "Ajin renon yara da firamare","tick.3": "Nema ta intanet, bi diddigi kowane lokaci",
+    "tick.1": "Karatun Alkur'ani da Larabci","tick.2": "Nursery, Firamare da JSS 1 zuwa 3","tick.3": "Nema ta intanet, bi diddigi kowane lokaci",
     "hq.apply": "Nemi shiga makaranta",
     "hq.apply.d": "Fara ta intanet cikin 'yan mintuna",
     "hq.parent": "Shafin iyaye",

@@ -260,18 +260,34 @@
         fld("cs-email", "Email", '<input class="input" type="email" id="cs-email" maxlength="120" value="' + esc(v.email || "") + '">') +
         fld("cs-wa", "WhatsApp number (digits with country code, e.g. 2348012345678)", '<input class="input" id="cs-wa" inputmode="numeric" maxlength="20" value="' + esc(v.whatsapp || "") + '">') +
         fld("cs-map", "Map link (https://...)", '<input class="input" type="url" id="cs-map" maxlength="400" value="' + esc(v.mapUrl || "") + '">', "full") +
+        '<div class="fld full"><span class="lbl-t">School location</span><p class="count-line" style="margin:.2rem 0 .6rem">Stand at the school with your phone, turn on location, and tap the button. The map link and directions are filled in for you.</p><div class="form-actions"><button type="button" class="btn btn-soft" id="cs-gps">Use my current location</button></div>' +
+        '<div class="form-grid" style="margin-top:.6rem"><div class="fld"><label for="cs-lat">Latitude</label><input class="input" id="cs-lat" inputmode="decimal" maxlength="12" value="' + esc(v.lat == null ? "" : v.lat) + '"></div><div class="fld"><label for="cs-lng">Longitude</label><input class="input" id="cs-lng" inputmode="decimal" maxlength="12" value="' + esc(v.lng == null ? "" : v.lng) + '"></div></div><p class="result" id="cs-gres" role="status"></p></div>' +
         '</div><div class="form-actions" style="margin-top:1.2rem"><button type="submit" class="btn btn-primary" id="cs-save">Save school details</button></div><div class="result" id="cs-res" role="status" tabindex="-1"></div></form></div>';
+      $("#cs-gps").addEventListener("click", function () {
+        var r = $("#cs-gres"), btn = this; r.className = "result show"; r.textContent = "Finding your location...";
+        if (!navigator.geolocation) { r.className = "result show bad"; r.textContent = "This device cannot share its location. Type the coordinates or paste a map link."; return; }
+        btn.disabled = true;
+        navigator.geolocation.getCurrentPosition(function (pos) {
+          var la = pos.coords.latitude.toFixed(6), lo = pos.coords.longitude.toFixed(6);
+          $("#cs-lat").value = la; $("#cs-lng").value = lo; $("#cs-map").value = "https://www.google.com/maps?q=" + la + "," + lo;
+          r.className = "result show ok"; r.textContent = "Location found (accurate to about " + Math.round(pos.coords.accuracy) + " m). Now tap Save school details."; btn.disabled = false;
+        }, function (er) {
+          r.className = "result show bad"; btn.disabled = false;
+          r.textContent = er.code === 1 ? "Location is off or blocked. Turn on location for this browser (lock icon in the address bar, then Location, Allow) and try again." : "Could not get the location. Move to an open area and try again.";
+        }, { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 });
+      });
       $("#cs-form").addEventListener("submit", function (e) {
         e.preventDefault(); $$("#cs-form .fld.invalid").forEach(function (f) { f.classList.remove("invalid"); });
-        var res = $("#cs-res"), ok = true, em = $("#cs-email").value.trim(), wa = $("#cs-wa").value.replace(/[\s+()-]/g, ""), mp = $("#cs-map").value.trim();
+        var res = $("#cs-res"), ok = true, em = $("#cs-email").value.trim(), wa = $("#cs-wa").value.replace(/[\s+()-]/g, ""), mp = $("#cs-map").value.trim(), lat = $("#cs-lat").value.trim(), lng = $("#cs-lng").value.trim();
         if (em && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em)) { ok = false; bad($("#cs-email"), "That email does not look right."); }
         if (wa && !/^\d{8,15}$/.test(wa)) { ok = false; bad($("#cs-wa"), "Use digits only, with the country code (8 to 15 digits)."); }
         if (mp && !/^https:\/\//i.test(mp)) { ok = false; bad($("#cs-map"), "The link must start with https://"); }
+        if ((lat || lng) && (isNaN(+lat) || isNaN(+lng) || !lat || !lng || Math.abs(+lat) > 90 || Math.abs(+lng) > 180)) { ok = false; bad($("#cs-lat"), "Enter a valid latitude and longitude, or leave both empty."); }
         var hours = [], hoursOk = true;
         $("#cs-hours").value.split("\n").forEach(function (l) { l = l.trim(); if (!l) return; var p = l.split("|"); if (p.length !== 2 || !p[0].trim() || !p[1].trim()) hoursOk = false; else hours.push({ days: p[0].trim(), time: p[1].trim() }); });
         if (!hoursOk) { ok = false; bad($("#cs-hours"), "Write each line as: Days | Time"); }
         if (!ok) { res.className = "result show bad"; res.textContent = "Please fix the highlighted fields."; return; }
-        var value = { address: $("#cs-addr").value.trim(), phones: $("#cs-phones").value.split("\n").map(function (x) { return x.trim(); }).filter(Boolean), hours: hours, email: em, whatsapp: wa, mapUrl: mp };
+        var value = { address: $("#cs-addr").value.trim(), phones: $("#cs-phones").value.split("\n").map(function (x) { return x.trim(); }).filter(Boolean), hours: hours, email: em, whatsapp: wa, mapUrl: mp, lat: lat ? +lat : null, lng: lng ? +lng : null };
         $("#cs-save").disabled = true;
         A.api("POST", "/rest/v1/site_settings?on_conflict=key", { key: "contact", value: value }, { Prefer: "resolution=merge-duplicates,return=representation" }).then(function (rows) {
           if (!rows || !rows.length) throw new Error("Nothing was saved. Your account may not be allowed to change school details.");

@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Admissions | Umar BN L Khattob Nursery &amp; Primary School</title>
-  <meta name="description" content="Apply online for a Nursery or Primary place and track your application.">
+  <meta name="description" content="Apply online for a Nursery, Primary or Secondary (JSS 1 to 3) place and track your application.">
   <meta name="theme-color" content="#302078">
   <link rel="manifest" href="manifest.webmanifest">
   <meta name="mobile-web-app-capable" content="yes">
@@ -15,7 +15,7 @@
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Umar BN L Khattob Nursery &amp; Primary School">
   <meta property="og:title" content="Admissions | Umar BN L Khattob Nursery &amp; Primary School">
-  <meta property="og:description" content="Apply online for a Nursery or Primary place and track your application.">
+  <meta property="og:description" content="Apply online for a Nursery, Primary or Secondary (JSS 1 to 3) place and track your application.">
   <meta name="color-scheme" content="light dark">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -58,7 +58,7 @@
         </a>
         <ul class="bb-hl" aria-label="At a glance" data-i18n-attr="aria-label:bb.label">
           <li><span data-icon="book" aria-hidden="true"></span><span><b data-i18n="bb.1">Qur'an is our honour</b><small data-i18n="bb.1d">Our school motto</small></span></li>
-          <li><span data-icon="shield" aria-hidden="true"></span><span><b data-i18n="bb.2">Nursery and Primary</b><small data-i18n="bb.2d">With Qur'anic and Arabic studies</small></span></li>
+          <li><span data-icon="shield" aria-hidden="true"></span><span><b data-i18n="bb.2">Nursery, Primary and Secondary</b><small data-i18n="bb.2d">With Qur'anic and Arabic studies</small></span></li>
         </ul>
       </div>
     </div>
@@ -144,7 +144,7 @@
             <ul class="req-list"><li data-i18n="adm.req1"></li><li data-i18n="adm.req2"></li><li data-i18n="adm.req3"></li><li data-i18n="adm.req4"></li><li data-i18n="adm.req5"></li></ul></article>
           <article class="panel reveal" style="--i:1"><p class="notice is-info" style="margin:0 0 1rem"><span data-icon="alert"></span><span data-i18n="adm.note"></span></p>
             <p class="sec-lead" style="margin:0"><span data-i18n="adm.privacy"></span> <a href="privacy.html" data-i18n="footer.privacy">Privacy notice</a></p>
-            <p style="margin:1rem 0 0"><a class="link-arrow" href="track.html"><span data-i18n="pg.track">Track application</span><span data-icon="arrow"></span></a></p></article>
+            <p style="margin:1rem 0 0;display:flex;flex-wrap:wrap;gap:.6rem 1.4rem"><a class="link-arrow" href="track.html"><span data-i18n="pg.track">Track application</span><span data-icon="arrow"></span></a><a class="link-arrow" href="track.html#entrance"><span data-i18n="ex.t">Entrance exam result</span><span data-icon="arrow"></span></a></p></article>
         </div>
       </div>
     </section>
@@ -171,7 +171,7 @@
                     <label><input type="radio" name="level" value="primary"><span data-i18n="filter.primary">Primary</span></label>
                     <label><input type="radio" name="level" value="secondary"><span data-i18n="filter.secondary">Secondary</span></label></div>
                   <p class="err" id="err-level" data-i18n="adm.e.level"></p></div>
-                <div class="fld"><label for="a-class" data-i18n="adm.class">Class (optional)</label><input class="input" id="a-class" maxlength="40" placeholder="e.g. Nursery 2, Primary 1" data-i18n-attr="placeholder:adm.class.ph"></div>
+                <div class="fld"><label for="a-class" data-i18n="adm.class">Class (optional)</label><input class="input" id="a-class" list="a-class-list" maxlength="40" placeholder="e.g. Nursery 2, Primary 1, JSS 1" data-i18n-attr="placeholder:adm.class.ph"></div>
                 <div class="fld"><label for="a-dob" data-i18n="adm.dob">Date of birth</label><input class="input" id="a-dob" type="date"><p class="err" id="err-dob" data-i18n="adm.e.dob"></p></div>
                 <div class="fld"><label for="a-cfn" data-i18n="adm.cfn">Child's first name</label><input class="input" id="a-cfn" maxlength="60" autocomplete="off"><p class="err" id="err-cfn" data-i18n="adm.e.cfn"></p></div>
                 <div class="fld"><label for="a-cln" data-i18n="adm.cln">Child's last name</label><input class="input" id="a-cln" maxlength="60" autocomplete="off"><p class="err" id="err-cln" data-i18n="adm.e.cln"></p></div>
@@ -185,7 +185,7 @@
             <fieldset class="wiz-pane" data-step="2" hidden><legend class="sr-only" data-i18n="adm.s2">Guardian</legend>
               <div class="form-grid">
                 <div class="fld"><label for="a-gname" data-i18n="adm.gname">Guardian's full name</label><input class="input" id="a-gname" maxlength="100" autocomplete="name"><p class="err" id="err-gname" data-i18n="adm.e.gname"></p></div>
-                <div class="fld"><label for="a-grel" data-i18n="adm.grel">Relationship to the child</label><input class="input" id="a-grel" maxlength="40" placeholder="e.g. Mother, Father, Guardian" data-i18n-attr="placeholder:adm.grel.ph"><p class="err" id="err-grel" data-i18n="adm.e.grel"></p></div>
+                <datalist id="a-class-list"></datalist><div class="fld"><label for="a-grel" data-i18n="adm.grel">Relationship to the child</label><input class="input" id="a-grel" maxlength="40" placeholder="e.g. Mother, Father, Guardian" data-i18n-attr="placeholder:adm.grel.ph"><p class="err" id="err-grel" data-i18n="adm.e.grel"></p></div>
                 <div class="fld"><label for="a-gphone" data-i18n="adm.gphone">Phone or WhatsApp</label><input class="input" id="a-gphone" type="tel" inputmode="tel" maxlength="24" autocomplete="tel"><p class="err" id="err-gphone" data-i18n="adm.e.phone"></p></div>
                 <div class="fld"><label for="a-gemail" data-i18n="adm.gemail">Email</label><input class="input" id="a-gemail" type="email" maxlength="120" autocomplete="email"><p class="err" id="err-gemail" data-i18n="adm.e.email"></p></div>
                 <div class="full"><p class="err" id="err-gcontact" style="display:none;color:var(--danger);font-size:.84rem;margin:0" data-i18n="adm.e.contact"></p><p class="count-line" style="margin:0" data-i18n="adm.contact.hint"></p></div>

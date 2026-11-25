@@ -27,7 +27,7 @@ window.UBK_I18N = {
     "sec.admin.t": "School Admin", "sec.admin.d": "A secure, role-based dashboard to run the school: content, admissions, pupils, finance records and settings.",
     "sec.teacher.t": "Teacher", "sec.teacher.d": "AI assistants for lesson notes and exam questions, plus tools for classes and parent communication.",
     "sec.parent.t": "Parent", "sec.parent.d": "A simple, private portal for guardians: their children's updates, receipts and requests.",
-    "sec.learning.t": "Learning Resources", "sec.learning.d": "Approved videos, games, materials and quizzes for nursery and primary pupils.",
+    "sec.learning.t": "Learning Resources", "sec.learning.d": "Approved videos, games, materials and quizzes for nursery, primary and secondary pupils.",
     "grp.school": "Our school", "grp.join": "Join and stay informed",
     "grp.ops": "Operations", "grp.fin": "Finance",
     "grp.ai": "AI teaching assistants", "grp.class": "Classroom tools",
