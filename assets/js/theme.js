@@ -12,3 +12,5 @@
   d.setAttribute("dir", l === "ar" ? "rtl" : "ltr");
   window.UBK_BOOT = { theme: t, lang: l };
 })();
+/* Catch the browser's install offer as early as possible, so it is never missed (used by pwa.js). */
+window.addEventListener("beforeinstallprompt", function (e) { e.preventDefault(); window.__ubkInstall = e; window.dispatchEvent(new Event("ubk:installready")); });
