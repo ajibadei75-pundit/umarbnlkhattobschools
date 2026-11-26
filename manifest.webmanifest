@@ -22,6 +22,12 @@
       "purpose": "any"
     },
     {
+      "src": "assets/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
       "src": "assets/icons/icon-maskable-512.png",
       "sizes": "512x512",
       "type": "image/png",
@@ -100,5 +106,11 @@
       "form_factor": "narrow",
       "label": "School home page on a phone"
     }
-  ]
+  ],
+  "launch_handler": {
+    "client_mode": [
+      "navigate-existing",
+      "auto"
+    ]
+  }
 }
